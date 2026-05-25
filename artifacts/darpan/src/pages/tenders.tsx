@@ -8,12 +8,39 @@ import { formatIndianCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, SlidersHorizontal, ChevronRight } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronRight, Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+function exportToCSV(tenders: any[]) {
+  const headers = ["Tender ID", "Title", "Department", "State", "Contract Value", "Fraud Score", "Fraud Tier", "Primary Signal", "Published At", "Bid Window (days)", "Awarded To"];
+  const rows = tenders.map((t) => [
+    t.tenderId,
+    `"${t.title.replace(/"/g, '""')}"`,
+    `"${t.department.replace(/"/g, '""')}"`,
+    t.state,
+    t.contractValue,
+    t.fraudScore,
+    t.fraudTier,
+    `"${(t.primarySignal ?? "").replace(/"/g, '""')}"`,
+    format(new Date(t.publishedAt), "dd/MM/yyyy"),
+    t.bidWindowDays,
+    `"${t.awardedTo.replace(/"/g, '""')}"`,
+  ]);
+  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `darpan_tenders_${format(new Date(), "yyyyMMdd")}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function Tenders() {
   const [search, setSearch] = useState("");
   const [stateFilter, setStateFilter] = useState<string>("all");
   const [minScore, setMinScore] = useState<string>("0");
+  const { toast } = useToast();
 
   const queryParams = {
     search: search || undefined,
@@ -22,6 +49,12 @@ export default function Tenders() {
   };
 
   const { data, isLoading } = useListTenders(queryParams, { query: { queryKey: getListTendersQueryKey(queryParams) } });
+
+  const handleExport = () => {
+    if (!data?.tenders.length) return;
+    exportToCSV(data.tenders);
+    toast({ title: "Exported", description: `${data.tenders.length} tenders exported to CSV.` });
+  };
 
   return (
     <MainLayout title="Tenders Feed" subtitle="Live feed of scanned government procurement contracts">
@@ -52,6 +85,7 @@ export default function Tenders() {
               <SelectItem value="Gujarat">Gujarat</SelectItem>
               <SelectItem value="Uttar Pradesh">Uttar Pradesh</SelectItem>
               <SelectItem value="Rajasthan">Rajasthan</SelectItem>
+              <SelectItem value="Tamil Nadu">Tamil Nadu</SelectItem>
             </SelectContent>
           </Select>
           <Select value={minScore} onValueChange={setMinScore}>
@@ -65,6 +99,14 @@ export default function Tenders() {
               <SelectItem value="85">Score 85+ (Critical)</SelectItem>
             </SelectContent>
           </Select>
+          <button
+            onClick={handleExport}
+            disabled={!data?.tenders.length}
+            className="flex items-center gap-2 px-4 py-2 rounded-[10px] border border-[#ebebeb] bg-white text-[13px] font-medium text-[#6a6a6a] hover:border-[#ff385c] hover:text-[#ff385c] disabled:opacity-40 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
         </div>
 
         {!isLoading && data && (

@@ -1,13 +1,15 @@
-import { useGetDashboardStats, getGetDashboardStatsQueryKey, useGetStateHeatmap, useGetDepartmentLeaderboard, useGetRecentActivity, useListTenders } from "@workspace/api-client-react";
+import { useGetDashboardStats, getGetDashboardStatsQueryKey, useGetStateHeatmap, useGetDepartmentLeaderboard, useGetRecentActivity, useListTenders, useTriggerScan } from "@workspace/api-client-react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { formatIndianCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { motion } from "framer-motion";
-import { AlertCircle, FileText, IndianRupee, ShieldAlert, Activity, ChevronRight, Clock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { AlertCircle, FileText, IndianRupee, ShieldAlert, Activity, ChevronRight, Clock, Scan, Loader2, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { FraudScoreBadge, FraudTierBadge } from "@/components/ui/fraud-badge";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 function StatCard({ title, value, icon: Icon, loading, accent }: {
   title: string;
@@ -32,16 +34,77 @@ function StatCard({ title, value, icon: Icon, loading, accent }: {
   );
 }
 
+function ScanResultBanner({ result, onDismiss }: { result: any; onDismiss: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm p-5"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div>
+            <p className="text-[14px] font-bold text-[#222222]">
+              Scan complete — {result.scannedCount.toLocaleString()} tenders scanned in {(result.scanDurationMs / 1000).toFixed(1)}s
+            </p>
+            <p className="text-[13px] text-[#6a6a6a] mt-1">
+              <span className="font-semibold text-[#ff385c]">{result.flaggedCount} new flagged</span>
+              {result.criticalFound > 0 && (
+                <span className="ml-2 font-semibold text-[#ff385c]">· {result.criticalFound} critical</span>
+              )}
+            </p>
+          </div>
+        </div>
+        <button onClick={onDismiss} className="text-[12px] text-[#aaaaaa] hover:text-[#ff385c] font-medium">Dismiss</button>
+      </div>
+      {result.newTenders?.length > 0 && (
+        <div className="mt-4 space-y-2">
+          {result.newTenders.slice(0, 3).map((t: any) => (
+            <div key={t.tenderId} className="flex items-center gap-3 px-3 py-2 bg-[#f7f7f7] rounded-[8px]">
+              <FraudTierBadge tier={t.fraudTier} />
+              <span className="text-[13px] font-medium text-[#222222] flex-1 truncate">{t.title}</span>
+              <span className="text-[13px] font-bold text-[#ff385c]">{t.fraudScore}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
 export default function Dashboard() {
+  const queryClient = useQueryClient();
+  const [scanResult, setScanResult] = useState<any>(null);
+  const triggerScan = useTriggerScan();
+
   const { data: stats, isLoading: statsLoading } = useGetDashboardStats({ query: { queryKey: getGetDashboardStatsQueryKey() } });
   const { data: heatmap, isLoading: heatmapLoading } = useGetStateHeatmap();
   const { data: leaderboard, isLoading: leaderboardLoading } = useGetDepartmentLeaderboard();
   const { data: activity, isLoading: activityLoading } = useGetRecentActivity();
   const { data: tendersData, isLoading: tendersLoading } = useListTenders({ limit: 6 });
 
+  const handleScan = () => {
+    triggerScan.mutate({ count: 3 } as any, {
+      onSuccess: (data) => {
+        setScanResult(data);
+        queryClient.invalidateQueries();
+      },
+    });
+  };
+
   return (
     <MainLayout title="Dashboard" subtitle="Live intelligence overview for government procurement fraud">
       <div className="space-y-8">
+
+        <AnimatePresence>
+          {scanResult && (
+            <ScanResultBanner result={scanResult} onDismiss={() => setScanResult(null)} />
+          )}
+        </AnimatePresence>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           <StatCard loading={statsLoading} title="Tenders Scanned" value={stats?.tendersScannedToday ?? 0} icon={FileText} />
@@ -49,6 +112,26 @@ export default function Dashboard() {
           <StatCard loading={statsLoading} title="Fraud Detected" value={stats ? formatIndianCurrency(stats.fraudValueDetected) : "—"} icon={IndianRupee} accent="bg-[#ff385c]" />
           <StatCard loading={statsLoading} title="Critical Cases" value={stats?.criticalCases ?? 0} icon={AlertCircle} accent="bg-[#ff385c]" />
           <StatCard loading={statsLoading} title="RTIs Filed" value={stats?.rtisFiled ?? 0} icon={Activity} />
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            onClick={handleScan}
+            disabled={triggerScan.isPending}
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#ff385c] hover:bg-[#e0022a] disabled:opacity-60 text-white rounded-[10px] text-[14px] font-semibold transition-all shadow-sm"
+          >
+            {triggerScan.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Scanning…
+              </>
+            ) : (
+              <>
+                <Scan className="w-4 h-4" />
+                Run New Scan
+              </>
+            )}
+          </button>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -93,7 +176,6 @@ export default function Dashboard() {
           </div>
 
           <div className="flex flex-col gap-6">
-
             <div className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm overflow-hidden">
               <div className="px-5 py-4 border-b border-[#f7f7f7] flex items-center justify-between">
                 <h2 className="text-[15px] font-bold text-[#222222]">Recent Activity</h2>

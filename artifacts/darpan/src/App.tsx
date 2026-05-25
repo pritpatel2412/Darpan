@@ -7,7 +7,9 @@ import Dashboard from "@/pages/dashboard";
 import Tenders from "@/pages/tenders";
 import TenderDetail from "@/pages/tender-detail";
 import Contractors from "@/pages/contractors";
+import ContractorDetail from "@/pages/contractor-detail";
 import RtiTracker from "@/pages/rti-tracker";
+import RtiDetail from "@/pages/rti-detail";
 import Analytics from "@/pages/analytics";
 
 const queryClient = new QueryClient();
@@ -20,7 +22,9 @@ function Router() {
       <Route path="/tenders" component={Tenders} />
       <Route path="/tenders/:id" component={TenderDetail} />
       <Route path="/contractors" component={Contractors} />
+      <Route path="/contractors/:id" component={ContractorDetail} />
       <Route path="/rti-tracker" component={RtiTracker} />
+      <Route path="/rti/:id" component={RtiDetail} />
       <Route component={NotFound} />
     </Switch>
   );

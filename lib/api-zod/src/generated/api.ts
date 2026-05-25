@@ -311,3 +311,82 @@ export const GetRecentActivityResponseItem = zod.object({
 export const GetRecentActivityResponse = zod.array(GetRecentActivityResponseItem)
 
 
+/**
+ * @summary Get a single RTI application by ID
+ */
+export const GetRtiParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetRtiResponse = zod.object({
+  "id": zod.number(),
+  "tenderId": zod.string(),
+  "tenderTitle": zod.string(),
+  "department": zod.string(),
+  "pioName": zod.string().optional(),
+  "pioAddress": zod.string().optional(),
+  "status": zod.enum(['drafted', 'submitted', 'responded', 'appealed']),
+  "questions": zod.array(zod.string()),
+  "legalBasis": zod.string(),
+  "evidenceSummary": zod.string().optional(),
+  "filingDate": zod.string().nullish(),
+  "responseDeadline": zod.string().nullish(),
+  "confirmationNumber": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Global search across tenders and contractors
+ */
+export const globalSearchQueryTypeDefault = `all`;
+
+export const GlobalSearchQueryParams = zod.object({
+  "q": zod.coerce.string(),
+  "type": zod.enum(['all', 'tenders', 'contractors']).default(globalSearchQueryTypeDefault)
+})
+
+export const GlobalSearchResponse = zod.object({
+  "results": zod.array(zod.object({
+  "type": zod.enum(['tender', 'contractor']),
+  "id": zod.number(),
+  "title": zod.string(),
+  "subtitle": zod.string(),
+  "score": zod.number(),
+  "fraudTier": zod.string().optional(),
+  "href": zod.string()
+})),
+  "total": zod.number(),
+  "query": zod.string()
+})
+
+
+/**
+ * @summary Trigger a new procurement fraud scan
+ */
+export const triggerScanBodyCountDefault = 3;
+
+export const TriggerScanBody = zod.object({
+  "states": zod.array(zod.string()).optional(),
+  "count": zod.number().default(triggerScanBodyCountDefault)
+})
+
+export const TriggerScanResponse = zod.object({
+  "scannedCount": zod.number(),
+  "flaggedCount": zod.number(),
+  "newTenders": zod.array(zod.object({
+  "tenderId": zod.string(),
+  "title": zod.string(),
+  "fraudScore": zod.number(),
+  "fraudTier": zod.string(),
+  "department": zod.string(),
+  "state": zod.string(),
+  "contractValue": zod.number(),
+  "isNew": zod.boolean()
+})),
+  "criticalFound": zod.number(),
+  "scanDurationMs": zod.number(),
+  "timestamp": zod.string()
+})
+
+

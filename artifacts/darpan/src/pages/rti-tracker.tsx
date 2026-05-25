@@ -2,7 +2,9 @@ import { useListRtis, getListRtisQueryKey } from "@workspace/api-client-react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format, differenceInDays } from "date-fns";
-import { ScrollText, Clock, CheckCircle, Send, MessageSquare } from "lucide-react";
+import { ScrollText, Clock, CheckCircle, Send, MessageSquare, ChevronRight, Download } from "lucide-react";
+import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 
 const STATUS_CONFIG: Record<string, { color: string; bg: string; icon: any; label: string }> = {
   drafted: { color: "text-[#6a6a6a]", bg: "bg-[#f7f7f7]", icon: ScrollText, label: "Drafted" },
@@ -39,11 +41,35 @@ function DeadlineCell({ deadline }: { deadline: string | null }) {
 
 export default function RtiTracker() {
   const { data, isLoading } = useListRtis({}, { query: { queryKey: getListRtisQueryKey({}) } });
+  const { toast } = useToast();
 
   const counts = data?.rtis.reduce<Record<string, number>>((acc, r) => {
     acc[r.status] = (acc[r.status] ?? 0) + 1;
     return acc;
   }, {}) ?? {};
+
+  const handleExport = () => {
+    if (!data?.rtis.length) return;
+    const headers = ["ID", "Tender ID", "Department", "Status", "Filing Date", "Response Deadline", "Confirmation Number"];
+    const rows = data.rtis.map((r) => [
+      r.id,
+      r.tenderId,
+      `"${r.department.replace(/"/g, '""')}"`,
+      r.status,
+      r.filingDate ? format(new Date(r.filingDate), "dd/MM/yyyy") : "",
+      r.responseDeadline ? format(new Date(r.responseDeadline), "dd/MM/yyyy") : "",
+      r.confirmationNumber ?? "",
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `darpan_rtis_${format(new Date(), "yyyyMMdd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exported", description: `${data.rtis.length} RTI applications exported to CSV.` });
+  };
 
   return (
     <MainLayout title="RTI Tracker" subtitle="Monitor all Right to Information applications filed by Darpan">
@@ -72,9 +98,19 @@ export default function RtiTracker() {
         </div>
 
         <div className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#f7f7f7] flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#aaaaaa]" />
-            <h2 className="text-[14px] font-bold text-[#222222]">All Applications</h2>
+          <div className="px-6 py-4 border-b border-[#f7f7f7] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#aaaaaa]" />
+              <h2 className="text-[14px] font-bold text-[#222222]">All Applications</h2>
+            </div>
+            <button
+              onClick={handleExport}
+              disabled={!data?.rtis.length}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#ebebeb] text-[12px] font-medium text-[#6a6a6a] hover:border-[#ff385c] hover:text-[#ff385c] disabled:opacity-40 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Export
+            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -85,17 +121,18 @@ export default function RtiTracker() {
                   <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Status</th>
                   <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Filed</th>
                   <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Response Deadline</th>
+                  <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest"></th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading
                   ? Array.from({ length: 4 }).map((_, i) => (
                     <tr key={i} className="border-b border-[#f7f7f7]">
-                      <td colSpan={5} className="px-6 py-4"><Skeleton className="h-5 w-full" /></td>
+                      <td colSpan={6} className="px-6 py-4"><Skeleton className="h-5 w-full" /></td>
                     </tr>
                   ))
                   : data?.rtis.map((rti) => (
-                    <tr key={rti.id} className="border-b border-[#f7f7f7] last:border-0 hover:bg-[#fafafa] transition-colors">
+                    <tr key={rti.id} className="border-b border-[#f7f7f7] last:border-0 hover:bg-[#fafafa] transition-colors group">
                       <td className="px-6 py-4 font-mono text-[13px] text-[#222222] font-medium">{rti.tenderId}</td>
                       <td className="px-6 py-4 text-[13px] text-[#3f3f3f] max-w-[200px] truncate">{rti.department}</td>
                       <td className="px-6 py-4"><StatusBadge status={rti.status} /></td>
@@ -103,12 +140,19 @@ export default function RtiTracker() {
                         {rti.filingDate ? format(new Date(rti.filingDate), "dd MMM yyyy") : "—"}
                       </td>
                       <td className="px-6 py-4"><DeadlineCell deadline={rti.responseDeadline} /></td>
+                      <td className="px-6 py-4">
+                        <Link href={`/rti/${rti.id}`}>
+                          <button className="flex items-center gap-1 text-[12px] text-[#aaaaaa] hover:text-[#ff385c] transition-colors opacity-0 group-hover:opacity-100">
+                            View <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </Link>
+                      </td>
                     </tr>
                   ))
                 }
                 {data?.rtis.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-[#aaaaaa] text-[14px]">No RTI applications filed yet.</td>
+                    <td colSpan={6} className="px-6 py-12 text-center text-[#aaaaaa] text-[14px]">No RTI applications filed yet.</td>
                   </tr>
                 )}
               </tbody>

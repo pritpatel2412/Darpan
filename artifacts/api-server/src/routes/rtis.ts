@@ -43,6 +43,32 @@ router.get("/rtis", async (req, res) => {
   }
 });
 
+router.get("/rtis/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+
+    const [rti] = await db
+      .select()
+      .from(rtisTable)
+      .where(eq(rtisTable.id, id))
+      .limit(1);
+
+    if (!rti) {
+      res.status(404).json({ error: "RTI not found" });
+      return;
+    }
+
+    res.json(formatRti(rti));
+  } catch (err) {
+    req.log.error({ err }, "Error getting RTI");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 function formatRti(r: typeof rtisTable.$inferSelect) {
   return {
     id: r.id,

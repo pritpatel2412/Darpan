@@ -12,7 +12,13 @@ import {
   TrendingUp,
   ChevronRight,
   Zap,
+  FileText,
+  X,
 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useGlobalSearch } from "@workspace/api-client-react";
+import { useDebounce } from "@/hooks/use-debounce";
+import { FraudTierBadge } from "@/components/ui/fraud-badge";
 
 const navSections = [
   {
@@ -37,6 +43,120 @@ const navSections = [
   },
 ];
 
+function GlobalSearch() {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const debouncedQuery = useDebounce(query, 300);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [, navigate] = useLocation();
+
+  const { data, isFetching } = useGlobalSearch(
+    { q: debouncedQuery },
+    { query: { enabled: debouncedQuery.length >= 2 } }
+  );
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (href: string) => {
+    setOpen(false);
+    setQuery("");
+    navigate(href);
+  };
+
+  const results = data?.results ?? [];
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#aaaaaa]" />
+        <input
+          ref={inputRef}
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => query.length >= 2 && setOpen(true)}
+          placeholder="Quick search…"
+          className="w-full bg-[#f7f7f7] border border-[#ebebeb] rounded-[8px] pl-9 pr-8 py-2 text-[13px] text-[#222222] placeholder:text-[#aaaaaa] focus:outline-none focus:border-[#ff385c] focus:bg-white transition-all"
+        />
+        {query && (
+          <button onClick={() => { setQuery(""); setOpen(false); }} className="absolute right-2.5 top-1/2 -translate-y-1/2">
+            <X className="w-3.5 h-3.5 text-[#aaaaaa] hover:text-[#ff385c]" />
+          </button>
+        )}
+      </div>
+
+      {open && query.length >= 2 && (
+        <div className="absolute top-[calc(100%+6px)] left-0 right-0 bg-white rounded-[12px] border border-[#ebebeb] shadow-[0_8px_30px_rgba(0,0,0,0.12)] z-50 overflow-hidden max-h-[320px] overflow-y-auto">
+          {isFetching && (
+            <div className="px-4 py-3 text-[13px] text-[#aaaaaa] text-center">Searching…</div>
+          )}
+          {!isFetching && results.length === 0 && (
+            <div className="px-4 py-4 text-center">
+              <p className="text-[13px] text-[#aaaaaa]">No results for "{query}"</p>
+            </div>
+          )}
+          {!isFetching && results.length > 0 && (
+            <>
+              {results.filter(r => r.type === "tender").length > 0 && (
+                <>
+                  <div className="px-4 py-2 bg-[#f9f9f9] border-b border-[#f0f0f0]">
+                    <p className="text-[10px] font-bold text-[#aaaaaa] uppercase tracking-widest flex items-center gap-1.5">
+                      <FileText className="w-3 h-3" /> Tenders
+                    </p>
+                  </div>
+                  {results.filter(r => r.type === "tender").map((item) => (
+                    <button
+                      key={`${item.type}-${item.id}`}
+                      onClick={() => handleSelect(item.href)}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#fafafa] transition-colors text-left border-b border-[#f7f7f7] last:border-0"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold text-[#222222] truncate">{item.title}</p>
+                        <p className="text-[11px] text-[#aaaaaa] truncate mt-0.5">{item.subtitle}</p>
+                      </div>
+                      {item.fraudTier && <FraudTierBadge tier={item.fraudTier} />}
+                    </button>
+                  ))}
+                </>
+              )}
+              {results.filter(r => r.type === "contractor").length > 0 && (
+                <>
+                  <div className="px-4 py-2 bg-[#f9f9f9] border-b border-[#f0f0f0] border-t border-t-[#f0f0f0]">
+                    <p className="text-[10px] font-bold text-[#aaaaaa] uppercase tracking-widest flex items-center gap-1.5">
+                      <Building2 className="w-3 h-3" /> Contractors
+                    </p>
+                  </div>
+                  {results.filter(r => r.type === "contractor").map((item) => (
+                    <button
+                      key={`${item.type}-${item.id}`}
+                      onClick={() => handleSelect(item.href)}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#fafafa] transition-colors text-left"
+                    >
+                      <Building2 className="w-4 h-4 text-[#aaaaaa] flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold text-[#222222] truncate">{item.title}</p>
+                        <p className="text-[11px] text-[#aaaaaa] truncate mt-0.5">{item.subtitle}</p>
+                      </div>
+                    </button>
+                  ))}
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Sidebar() {
   const [location] = useLocation();
 
@@ -58,13 +178,7 @@ function Sidebar() {
       </div>
 
       <div className="px-4 py-3 border-b border-[#ebebeb]">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#aaaaaa]" />
-          <input
-            placeholder="Quick search…"
-            className="w-full bg-[#f7f7f7] border border-[#ebebeb] rounded-[8px] pl-9 pr-3 py-2 text-[13px] text-[#222222] placeholder:text-[#aaaaaa] focus:outline-none focus:border-[#ff385c] focus:bg-white transition-all"
-          />
-        </div>
+        <GlobalSearch />
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-5">

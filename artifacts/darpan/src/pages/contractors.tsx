@@ -2,7 +2,8 @@ import { useListContractors, getListContractorsQueryKey } from "@workspace/api-c
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatIndianCurrency } from "@/lib/utils";
-import { Building2, AlertTriangle } from "lucide-react";
+import { Building2, AlertTriangle, ChevronRight } from "lucide-react";
+import { Link } from "wouter";
 
 function RiskBar({ score }: { score: number }) {
   const color = score >= 85 ? "#ff385c" : score >= 70 ? "#f97316" : "#f59e0b";
@@ -51,17 +52,18 @@ export default function Contractors() {
                   <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Flagged</th>
                   <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Total Value</th>
                   <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Risk Score</th>
+                  <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest"></th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading
                   ? Array.from({ length: 6 }).map((_, i) => (
                     <tr key={i} className="border-b border-[#f7f7f7]">
-                      <td colSpan={6} className="px-6 py-4"><Skeleton className="h-5 w-full" /></td>
+                      <td colSpan={7} className="px-6 py-4"><Skeleton className="h-5 w-full" /></td>
                     </tr>
                   ))
                   : data?.contractors.map((c, i) => (
-                    <tr key={c.id} className="border-b border-[#f7f7f7] hover:bg-[#fafafa] transition-colors group">
+                    <tr key={c.id} className="border-b border-[#f7f7f7] hover:bg-[#fafafa] transition-colors group cursor-pointer">
                       <td className="px-6 py-4 text-[12px] text-[#aaaaaa] font-medium">{i + 1}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -69,7 +71,7 @@ export default function Contractors() {
                             <Building2 className="w-3.5 h-3.5 text-[#aaaaaa]" />
                           </div>
                           <div>
-                            <p className="text-[14px] font-semibold text-[#222222]">{c.name}</p>
+                            <p className="text-[14px] font-semibold text-[#222222] group-hover:text-[#ff385c] transition-colors">{c.name}</p>
                           </div>
                         </div>
                       </td>
@@ -82,6 +84,13 @@ export default function Contractors() {
                       </td>
                       <td className="px-6 py-4 text-[14px] font-semibold text-[#222222]">{formatIndianCurrency(c.totalValue)}</td>
                       <td className="px-6 py-4"><RiskBar score={c.riskScore} /></td>
+                      <td className="px-6 py-4">
+                        <Link href={`/contractors/${c.id}`}>
+                          <button className="flex items-center gap-1 text-[12px] text-[#aaaaaa] hover:text-[#ff385c] transition-colors opacity-0 group-hover:opacity-100">
+                            Profile <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </Link>
+                      </td>
                     </tr>
                   ))
                 }

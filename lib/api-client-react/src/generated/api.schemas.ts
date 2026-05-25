@@ -246,6 +246,55 @@ export interface ActivityItem {
   timestamp: string;
 }
 
+export type SearchResultItemType = typeof SearchResultItemType[keyof typeof SearchResultItemType];
+
+
+export const SearchResultItemType = {
+  tender: 'tender',
+  contractor: 'contractor',
+} as const;
+
+export interface SearchResultItem {
+  type: SearchResultItemType;
+  id: number;
+  title: string;
+  subtitle: string;
+  score: number;
+  fraudTier?: string;
+  href: string;
+}
+
+export interface SearchResponse {
+  results: SearchResultItem[];
+  total: number;
+  query: string;
+}
+
+export interface ScanRequest {
+  states?: string[];
+  count?: number;
+}
+
+export interface ScannedTenderResult {
+  tenderId: string;
+  title: string;
+  fraudScore: number;
+  fraudTier: string;
+  department: string;
+  state: string;
+  contractValue: number;
+  isNew: boolean;
+}
+
+export interface ScanResult {
+  scannedCount: number;
+  flaggedCount: number;
+  newTenders: ScannedTenderResult[];
+  criticalFound: number;
+  scanDurationMs: number;
+  timestamp: string;
+}
+
 export type ListTendersParams = {
 page?: number;
 limit?: number;
@@ -286,5 +335,19 @@ export const ListRtisStatus = {
   submitted: 'submitted',
   responded: 'responded',
   appealed: 'appealed',
+} as const;
+
+export type GlobalSearchParams = {
+q: string;
+type?: GlobalSearchType;
+};
+
+export type GlobalSearchType = typeof GlobalSearchType[keyof typeof GlobalSearchType];
+
+
+export const GlobalSearchType = {
+  all: 'all',
+  tenders: 'tenders',
+  contractors: 'contractors',
 } as const;
 

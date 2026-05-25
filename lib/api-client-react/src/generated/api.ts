@@ -25,19 +25,23 @@ import type {
   ContractorListResponse,
   DashboardStats,
   DepartmentLeaderboardEntry,
+  GlobalSearchParams,
   HealthStatus,
   ListContractorsParams,
   ListRtisParams,
   ListTendersParams,
   RtiApplication,
   RtiListResponse,
+  ScanRequest,
+  ScanResult,
+  SearchResponse,
   StateHeatmapEntry,
   TenderDetail,
   TenderListResponse
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
-import type { ErrorType } from '../custom-fetch';
+import type { ErrorType , BodyType } from '../custom-fetch';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -909,4 +913,236 @@ export function useGetRecentActivity<TData = Awaited<ReturnType<typeof getRecent
 
 
 
+
+export const getGetRtiUrl = (id: number,) => {
+
+
+
+
+  return `/api/rtis/${id}`
+}
+
+/**
+ * @summary Get a single RTI application by ID
+ */
+export const getRti = async (id: number, options?: RequestInit): Promise<RtiApplication> => {
+
+  return customFetch<RtiApplication>(getGetRtiUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRtiQueryKey = (id: number,) => {
+    return [
+    `/api/rtis/${id}`
+    ] as const;
+    }
+
+
+export const getGetRtiQueryOptions = <TData = Awaited<ReturnType<typeof getRti>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRti>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRtiQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRti>>> = ({ signal }) => getRti(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRti>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetRtiQueryResult = NonNullable<Awaited<ReturnType<typeof getRti>>>
+export type GetRtiQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a single RTI application by ID
+ */
+
+export function useGetRti<TData = Awaited<ReturnType<typeof getRti>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRti>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetRtiQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGlobalSearchUrl = (params: GlobalSearchParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/search?${stringifiedParams}` : `/api/search`
+}
+
+/**
+ * @summary Global search across tenders and contractors
+ */
+export const globalSearch = async (params: GlobalSearchParams, options?: RequestInit): Promise<SearchResponse> => {
+
+  return customFetch<SearchResponse>(getGlobalSearchUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGlobalSearchQueryKey = (params?: GlobalSearchParams,) => {
+    return [
+    `/api/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGlobalSearchQueryOptions = <TData = Awaited<ReturnType<typeof globalSearch>>, TError = ErrorType<unknown>>(params: GlobalSearchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof globalSearch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGlobalSearchQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof globalSearch>>> = ({ signal }) => globalSearch(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof globalSearch>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GlobalSearchQueryResult = NonNullable<Awaited<ReturnType<typeof globalSearch>>>
+export type GlobalSearchQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Global search across tenders and contractors
+ */
+
+export function useGlobalSearch<TData = Awaited<ReturnType<typeof globalSearch>>, TError = ErrorType<unknown>>(
+ params: GlobalSearchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof globalSearch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGlobalSearchQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getTriggerScanUrl = () => {
+
+
+
+
+  return `/api/scan`
+}
+
+/**
+ * @summary Trigger a new procurement fraud scan
+ */
+export const triggerScan = async (scanRequest?: ScanRequest, options?: RequestInit): Promise<ScanResult> => {
+
+  return customFetch<ScanResult>(getTriggerScanUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      scanRequest,)
+  }
+);}
+
+
+
+
+export const getTriggerScanMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof triggerScan>>, TError,{data?: BodyType<ScanRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof triggerScan>>, TError,{data?: BodyType<ScanRequest>}, TContext> => {
+
+const mutationKey = ['triggerScan'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof triggerScan>>, {data?: BodyType<ScanRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  triggerScan(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TriggerScanMutationResult = NonNullable<Awaited<ReturnType<typeof triggerScan>>>
+    export type TriggerScanMutationBody = BodyType<ScanRequest> | undefined
+    export type TriggerScanMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Trigger a new procurement fraud scan
+ */
+export const useTriggerScan = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof triggerScan>>, TError,{data?: BodyType<ScanRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof triggerScan>>,
+        TError,
+        {data?: BodyType<ScanRequest>},
+        TContext
+      > => {
+      return useMutation(getTriggerScanMutationOptions(options));
+    }
 

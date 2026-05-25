@@ -17,6 +17,10 @@ tags:
     description: RTI application operations
   - name: dashboard
     description: Dashboard summary operations
+  - name: search
+    description: Global search operations
+  - name: scan
+    description: Scan trigger operations
 
 paths:
   /healthz:
@@ -232,6 +236,66 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ActivityItem"
+
+  /rtis/{id}:
+    get:
+      operationId: getRti
+      tags: [rtis]
+      summary: Get a single RTI application by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: RTI application detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RtiApplication"
+        "404":
+          description: Not found
+
+  /search:
+    get:
+      operationId: globalSearch
+      tags: [search]
+      summary: Global search across tenders and contractors
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema: { type: string }
+        - in: query
+          name: type
+          schema: { type: string, enum: [all, tenders, contractors], default: all }
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+
+  /scan:
+    post:
+      operationId: triggerScan
+      tags: [scan]
+      summary: Trigger a new procurement fraud scan
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScanRequest"
+      responses:
+        "200":
+          description: Scan results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanResult"
 
 components:
   schemas:
@@ -635,5 +699,89 @@ components:
           type: number
         state:
           type: string
+        timestamp:
+          type: string
+
+    SearchResultItem:
+      type: object
+      required: [type, id, title, subtitle, score, href]
+      properties:
+        type:
+          type: string
+          enum: [tender, contractor]
+        id:
+          type: integer
+        title:
+          type: string
+        subtitle:
+          type: string
+        score:
+          type: number
+        fraudTier:
+          type: string
+        href:
+          type: string
+
+    SearchResponse:
+      type: object
+      required: [results, total, query]
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchResultItem"
+        total:
+          type: integer
+        query:
+          type: string
+
+    ScanRequest:
+      type: object
+      properties:
+        states:
+          type: array
+          items:
+            type: string
+        count:
+          type: integer
+          default: 3
+
+    ScannedTenderResult:
+      type: object
+      required: [tenderId, title, fraudScore, fraudTier, department, state, contractValue, isNew]
+      properties:
+        tenderId:
+          type: string
+        title:
+          type: string
+        fraudScore:
+          type: number
+        fraudTier:
+          type: string
+        department:
+          type: string
+        state:
+          type: string
+        contractValue:
+          type: number
+        isNew:
+          type: boolean
+
+    ScanResult:
+      type: object
+      required: [scannedCount, flaggedCount, newTenders, criticalFound, scanDurationMs, timestamp]
+      properties:
+        scannedCount:
+          type: integer
+        flaggedCount:
+          type: integer
+        newTenders:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScannedTenderResult"
+        criticalFound:
+          type: integer
+        scanDurationMs:
+          type: integer
         timestamp:
           type: string
