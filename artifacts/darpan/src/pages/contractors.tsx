@@ -2,55 +2,94 @@ import { useListContractors, getListContractorsQueryKey } from "@workspace/api-c
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatIndianCurrency } from "@/lib/utils";
+import { Building2, AlertTriangle } from "lucide-react";
+
+function RiskBar({ score }: { score: number }) {
+  const color = score >= 85 ? "#ff385c" : score >= 70 ? "#f97316" : "#f59e0b";
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-28 bg-[#f7f7f7] rounded-full h-1.5 border border-[#ebebeb]">
+        <div className="h-1.5 rounded-full transition-all" style={{ width: `${score}%`, backgroundColor: color }} />
+      </div>
+      <span className="text-[13px] font-bold" style={{ color }}>{score}</span>
+    </div>
+  );
+}
 
 export default function Contractors() {
   const { data, isLoading } = useListContractors({}, { query: { queryKey: getListContractorsQueryKey({}) } });
 
   return (
-    <MainLayout>
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-[28px] font-bold text-[#222222] tracking-tight">Contractor Watchlist</h1>
-          <p className="text-[16px] text-[#6a6a6a] mt-1">High-risk entities flagged across multiple procurements.</p>
+    <MainLayout title="Contractor Watchlist" subtitle="High-risk entities repeatedly flagged across government procurements">
+      <div className="space-y-6">
+
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: "Entities on Watchlist", value: isLoading ? "—" : data?.contractors.length ?? 0 },
+            { label: "Critical Risk (≥85)", value: isLoading ? "—" : data?.contractors.filter(c => c.riskScore >= 85).length ?? 0 },
+            { label: "Total Fraud Exposure", value: isLoading ? "—" : data ? formatIndianCurrency(data.contractors.reduce((s, c) => s + c.totalValue, 0)) : "—" },
+          ].map(({ label, value }) => (
+            <div key={label} className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm p-5">
+              <p className="text-[12px] text-[#aaaaaa] font-medium mb-1">{label}</p>
+              <p className="text-[24px] font-bold text-[#222222]">{value}</p>
+            </div>
+          ))}
         </div>
 
-        <div className="bg-white rounded-[14px] border border-[#dddddd] shadow-sm overflow-hidden">
+        <div className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#f7f7f7] flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-[#aaaaaa]" />
+            <h2 className="text-[14px] font-bold text-[#222222]">Entities</h2>
+          </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left">
               <thead>
-                <tr className="bg-[#f7f7f7] border-b border-[#dddddd]">
-                  <th className="py-4 px-6 text-[14px] font-medium text-[#6a6a6a]">Contractor Name</th>
-                  <th className="py-4 px-6 text-[14px] font-medium text-[#6a6a6a]">CIN / Registration</th>
-                  <th className="py-4 px-6 text-[14px] font-medium text-[#6a6a6a]">Flagged Tenders</th>
-                  <th className="py-4 px-6 text-[14px] font-medium text-[#6a6a6a]">Total Value</th>
-                  <th className="py-4 px-6 text-[14px] font-medium text-[#6a6a6a]">Risk Score</th>
+                <tr className="border-b border-[#f7f7f7]">
+                  <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">#</th>
+                  <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Contractor</th>
+                  <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">CIN / Registration</th>
+                  <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Flagged</th>
+                  <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Total Value</th>
+                  <th className="px-6 py-3 text-[11px] font-bold text-[#aaaaaa] uppercase tracking-widest">Risk Score</th>
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} className="border-b border-[#ebebeb]"><td colSpan={5} className="p-4"><Skeleton className="h-6 w-full" /></td></tr>
+                {isLoading
+                  ? Array.from({ length: 6 }).map((_, i) => (
+                    <tr key={i} className="border-b border-[#f7f7f7]">
+                      <td colSpan={6} className="px-6 py-4"><Skeleton className="h-5 w-full" /></td>
+                    </tr>
                   ))
-                ) : data?.contractors.map(c => (
-                  <tr key={c.id} className="border-b border-[#ebebeb] hover:bg-[#f7f7f7]/50 transition-colors">
-                    <td className="py-4 px-6 font-semibold text-[#222222]">{c.name}</td>
-                    <td className="py-4 px-6 text-[#6a6a6a] text-[14px]">{c.cin}</td>
-                    <td className="py-4 px-6 font-medium text-[#ff385c]">{c.flaggedTenders}</td>
-                    <td className="py-4 px-6 text-[#222222]">{formatIndianCurrency(c.totalValue)}</td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <div className="w-full bg-[#ebebeb] rounded-full h-2">
-                          <div className="bg-[#ff385c] h-2 rounded-full" style={{ width: `${c.riskScore}%` }} />
+                  : data?.contractors.map((c, i) => (
+                    <tr key={c.id} className="border-b border-[#f7f7f7] hover:bg-[#fafafa] transition-colors group">
+                      <td className="px-6 py-4 text-[12px] text-[#aaaaaa] font-medium">{i + 1}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-[8px] bg-[#f7f7f7] border border-[#ebebeb] flex items-center justify-center flex-shrink-0">
+                            <Building2 className="w-3.5 h-3.5 text-[#aaaaaa]" />
+                          </div>
+                          <div>
+                            <p className="text-[14px] font-semibold text-[#222222]">{c.name}</p>
+                          </div>
                         </div>
-                        <span className="text-[12px] font-bold">{c.riskScore}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 text-[13px] text-[#6a6a6a] font-mono">{c.cin}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-1">
+                          <AlertTriangle className="w-3.5 h-3.5 text-[#ff385c]" />
+                          <span className="text-[14px] font-bold text-[#ff385c]">{c.flaggedTenders}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-[14px] font-semibold text-[#222222]">{formatIndianCurrency(c.totalValue)}</td>
+                      <td className="px-6 py-4"><RiskBar score={c.riskScore} /></td>
+                    </tr>
+                  ))
+                }
               </tbody>
             </table>
           </div>
         </div>
+
       </div>
     </MainLayout>
   );

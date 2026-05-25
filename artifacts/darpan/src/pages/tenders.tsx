@@ -8,6 +8,7 @@ import { formatIndianCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, SlidersHorizontal, ChevronRight } from "lucide-react";
 
 export default function Tenders() {
   const [search, setSearch] = useState("");
@@ -17,32 +18,31 @@ export default function Tenders() {
   const queryParams = {
     search: search || undefined,
     state: stateFilter !== "all" ? stateFilter : undefined,
-    minScore: minScore ? Number(minScore) : undefined
+    minScore: minScore ? Number(minScore) : undefined,
   };
 
   const { data, isLoading } = useListTenders(queryParams, { query: { queryKey: getListTendersQueryKey(queryParams) } });
 
   return (
-    <MainLayout>
-      <div className="flex flex-col gap-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-[28px] font-bold text-[#222222] tracking-tight">Tenders Feed</h1>
-            <p className="text-[16px] text-[#6a6a6a] mt-1">Live feed of scanned procurement contracts.</p>
-          </div>
-        </div>
+    <MainLayout title="Tenders Feed" subtitle="Live feed of scanned government procurement contracts">
+      <div className="flex flex-col gap-6">
 
-        <div className="flex flex-col md:flex-row gap-4 bg-[#f7f7f7] p-4 rounded-[14px] border border-[#ebebeb]">
-          <Input 
-            placeholder="Search by ID, department, or keyword..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-white border-[#dddddd] rounded-full md:max-w-xs"
-          />
-          
+        <div className="flex flex-col sm:flex-row gap-3 p-4 bg-white rounded-[14px] border border-[#ebebeb] shadow-sm">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#aaaaaa]" />
+            <Input
+              placeholder="Search by ID, department, or keyword…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 bg-[#f7f7f7] border-[#ebebeb] rounded-[10px] focus:bg-white"
+            />
+          </div>
+          <div className="flex items-center gap-2 text-[13px] text-[#6a6a6a] font-medium">
+            <SlidersHorizontal className="w-4 h-4 text-[#aaaaaa]" />
+          </div>
           <Select value={stateFilter} onValueChange={setStateFilter}>
-            <SelectTrigger className="w-[180px] bg-white rounded-full">
-              <SelectValue placeholder="State" />
+            <SelectTrigger className="w-[160px] rounded-[10px] border-[#ebebeb] text-[13px]">
+              <SelectValue placeholder="All States" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All States</SelectItem>
@@ -50,62 +50,81 @@ export default function Tenders() {
               <SelectItem value="Delhi">Delhi</SelectItem>
               <SelectItem value="Karnataka">Karnataka</SelectItem>
               <SelectItem value="Gujarat">Gujarat</SelectItem>
+              <SelectItem value="Uttar Pradesh">Uttar Pradesh</SelectItem>
+              <SelectItem value="Rajasthan">Rajasthan</SelectItem>
             </SelectContent>
           </Select>
-
           <Select value={minScore} onValueChange={setMinScore}>
-            <SelectTrigger className="w-[180px] bg-white rounded-full">
-              <SelectValue placeholder="Min Score" />
+            <SelectTrigger className="w-[160px] rounded-[10px] border-[#ebebeb] text-[13px]">
+              <SelectValue placeholder="Any Score" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="0">Any Score</SelectItem>
               <SelectItem value="40">Score 40+</SelectItem>
-              <SelectItem value="70">Score 70+</SelectItem>
+              <SelectItem value="70">Score 70+ (High)</SelectItem>
               <SelectItem value="85">Score 85+ (Critical)</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading ? (
-            Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64 rounded-[14px]" />)
-          ) : data?.tenders.map((tender) => (
-            <Link key={tender.id} href={`/tenders/${tender.id}`}>
-              <div className="bg-white rounded-[14px] border border-[#dddddd] shadow-sm hover:shadow-[rgba(0,0,0,0.02)_0_0_0_1px,rgba(0,0,0,0.04)_0_4px_12px] transition-shadow p-5 flex flex-col h-full cursor-pointer group">
-                <div className="flex justify-between items-start mb-4">
-                  <FraudTierBadge tier={tender.fraudTier} />
-                  <FraudScoreBadge score={tender.fraudScore} className="text-[14px] px-3 py-1" />
-                </div>
-                
-                <h3 className="text-[16px] font-semibold text-[#222222] line-clamp-2 mb-2 group-hover:text-[#ff385c] transition-colors">{tender.title}</h3>
-                
-                <div className="flex flex-col gap-1.5 mt-auto text-[14px]">
-                  <div className="flex justify-between">
-                    <span className="text-[#6a6a6a]">Department:</span>
-                    <span className="font-medium text-[#222222] truncate max-w-[120px]" title={tender.department}>{tender.department}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#6a6a6a]">Value:</span>
-                    <span className="font-medium text-[#222222]">{formatIndianCurrency(tender.contractValue)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#6a6a6a]">Published:</span>
-                    <span className="font-medium text-[#222222]">{format(new Date(tender.publishedAt), "dd MMM yyyy")}</span>
-                  </div>
-                </div>
+        {!isLoading && data && (
+          <p className="text-[13px] text-[#aaaaaa] font-medium -mb-2">
+            {data.tenders.length} tender{data.tenders.length !== 1 ? "s" : ""} found
+          </p>
+        )}
 
-                {tender.primarySignal && (
-                  <div className="mt-4 pt-4 border-t border-[#ebebeb]">
-                    <span className="inline-block bg-[#ff385c]/10 text-[#ff385c] text-[12px] px-2.5 py-1 rounded-md font-semibold">
-                      {tender.primarySignal}
-                    </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {isLoading
+            ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-56 rounded-[14px]" />)
+            : data?.tenders.map((tender) => (
+              <Link key={tender.id} href={`/tenders/${tender.id}`}>
+                <div className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm hover:shadow-md hover:border-[#dddddd] transition-all p-5 flex flex-col h-full cursor-pointer group">
+                  <div className="flex justify-between items-start mb-3">
+                    <FraudTierBadge tier={tender.fraudTier} />
+                    <FraudScoreBadge score={tender.fraudScore} />
                   </div>
-                )}
-              </div>
-            </Link>
-          ))}
+
+                  <h3 className="text-[14px] font-semibold text-[#222222] line-clamp-2 mb-3 group-hover:text-[#ff385c] transition-colors leading-snug">
+                    {tender.title}
+                  </h3>
+
+                  <div className="flex flex-col gap-1.5 text-[12px] mt-auto">
+                    <div className="flex justify-between">
+                      <span className="text-[#aaaaaa]">Department</span>
+                      <span className="font-medium text-[#3f3f3f] truncate max-w-[130px] text-right" title={tender.department}>
+                        {tender.department}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#aaaaaa]">Value</span>
+                      <span className="font-semibold text-[#222222]">{formatIndianCurrency(tender.contractValue)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#aaaaaa]">Published</span>
+                      <span className="text-[#3f3f3f]">{format(new Date(tender.publishedAt), "dd MMM yyyy")}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#aaaaaa]">State</span>
+                      <span className="text-[#3f3f3f]">{tender.state}</span>
+                    </div>
+                  </div>
+
+                  {tender.primarySignal && (
+                    <div className="mt-3 pt-3 border-t border-[#f7f7f7] flex items-center justify-between">
+                      <span className="inline-block bg-[#ff385c]/8 text-[#ff385c] text-[11px] px-2 py-0.5 rounded-[5px] font-semibold">
+                        {tender.primarySignal}
+                      </span>
+                      <ChevronRight className="w-3.5 h-3.5 text-[#dddddd] group-hover:text-[#ff385c] transition-colors" />
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))
+          }
           {data?.tenders.length === 0 && (
-            <div className="col-span-full py-12 text-center text-[#6a6a6a]">No tenders found matching filters.</div>
+            <div className="col-span-full py-16 text-center">
+              <p className="text-[#aaaaaa] text-[14px]">No tenders match the current filters.</p>
+            </div>
           )}
         </div>
       </div>

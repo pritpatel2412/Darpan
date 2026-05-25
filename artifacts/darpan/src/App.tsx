@@ -8,6 +8,7 @@ import Tenders from "@/pages/tenders";
 import TenderDetail from "@/pages/tender-detail";
 import Contractors from "@/pages/contractors";
 import RtiTracker from "@/pages/rti-tracker";
+import Analytics from "@/pages/analytics";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/analytics" component={Analytics} />
       <Route path="/tenders" component={Tenders} />
       <Route path="/tenders/:id" component={TenderDetail} />
       <Route path="/contractors" component={Contractors} />
