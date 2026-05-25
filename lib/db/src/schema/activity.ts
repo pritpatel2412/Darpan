@@ -1,0 +1,19 @@
+import { pgTable, serial, text, timestamp, real, integer } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod/v4";
+
+export const activityTable = pgTable("activity", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(),
+  message: text("message").notNull(),
+  tenderId: text("tender_id").notNull(),
+  tenderTitle: text("tender_title").notNull(),
+  score: real("score").notNull().default(0),
+  state: text("state"),
+  tenderDbId: integer("tender_db_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertActivitySchema = createInsertSchema(activityTable).omit({ id: true, createdAt: true });
+export type InsertActivity = z.infer<typeof insertActivitySchema>;
+export type Activity = typeof activityTable.$inferSelect;

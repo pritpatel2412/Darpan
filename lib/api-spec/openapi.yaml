@@ -1,15 +1,23 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Darpan — AI-Powered Government Procurement Fraud Detection API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: tenders
+    description: Tender operations
+  - name: contractors
+    description: Contractor operations
+  - name: rtis
+    description: RTI application operations
+  - name: dashboard
+    description: Dashboard summary operations
+
 paths:
   /healthz:
     get:
@@ -24,6 +32,207 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /tenders:
+    get:
+      operationId: listTenders
+      tags: [tenders]
+      summary: List flagged tenders
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20 }
+        - in: query
+          name: state
+          schema: { type: string }
+        - in: query
+          name: department
+          schema: { type: string }
+        - in: query
+          name: minScore
+          schema: { type: number }
+        - in: query
+          name: fraudType
+          schema: { type: string }
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: sortBy
+          schema: { type: string, enum: [score, value, date], default: score }
+      responses:
+        "200":
+          description: List of tenders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderListResponse"
+
+  /tenders/{id}:
+    get:
+      operationId: getTender
+      tags: [tenders]
+      summary: Get tender details with evidence
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Tender detail with evidence
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderDetail"
+        "404":
+          description: Not found
+
+  /tenders/{id}/rti:
+    post:
+      operationId: generateRti
+      tags: [tenders]
+      summary: Generate RTI application for a tender
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Generated RTI application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RtiApplication"
+
+  /contractors:
+    get:
+      operationId: listContractors
+      tags: [contractors]
+      summary: List contractor watchlist
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20 }
+        - in: query
+          name: search
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of contractors
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractorListResponse"
+
+  /contractors/{id}:
+    get:
+      operationId: getContractor
+      tags: [contractors]
+      summary: Get contractor details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Contractor detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractorDetail"
+        "404":
+          description: Not found
+
+  /rtis:
+    get:
+      operationId: listRtis
+      tags: [rtis]
+      summary: List all RTI applications
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20 }
+        - in: query
+          name: status
+          schema: { type: string, enum: [drafted, submitted, responded, appealed] }
+      responses:
+        "200":
+          description: List of RTI applications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RtiListResponse"
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard summary statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/state-heatmap:
+    get:
+      operationId: getStateHeatmap
+      tags: [dashboard]
+      summary: Get state-wise fraud heatmap data
+      responses:
+        "200":
+          description: State heatmap data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateHeatmapEntry"
+
+  /dashboard/department-leaderboard:
+    get:
+      operationId: getDepartmentLeaderboard
+      tags: [dashboard]
+      summary: Get department fraud leaderboard
+      responses:
+        "200":
+          description: Department leaderboard
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DepartmentLeaderboardEntry"
+
+  /dashboard/recent-activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent fraud detection activity feed
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +243,397 @@ components:
       required:
         - status
 
+    Tender:
+      type: object
+      required: [id, tenderId, title, department, state, contractValue, fraudScore, fraudTier, fraudSignals, awardedTo, publishedAt, bidWindowDays]
+      properties:
+        id:
+          type: integer
+        tenderId:
+          type: string
+        title:
+          type: string
+        department:
+          type: string
+        state:
+          type: string
+        contractValue:
+          type: number
+        awardedValue:
+          type: ["number", "null"]
+        fraudScore:
+          type: number
+          description: "0-100 fraud confidence score"
+        fraudTier:
+          type: string
+          enum: [critical, high, medium, low]
+        fraudSignals:
+          type: array
+          items:
+            type: string
+        primarySignal:
+          type: string
+        awardedTo:
+          type: string
+        publishedAt:
+          type: string
+        bidWindowDays:
+          type: integer
+        priceRatio:
+          type: ["number", "null"]
+        source:
+          type: string
+
+    TenderListResponse:
+      type: object
+      required: [tenders, total, page, limit]
+      properties:
+        tenders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tender"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    FraudSignalDetail:
+      type: object
+      required: [signalId, name, triggered, confidence, evidence]
+      properties:
+        signalId:
+          type: string
+        name:
+          type: string
+        triggered:
+          type: boolean
+        confidence:
+          type: number
+        evidence:
+          type: string
+        sourceUrl:
+          type: ["string", "null"]
+        weight:
+          type: number
+
+    TenderDetail:
+      type: object
+      required: [id, tenderId, title, department, state, contractValue, fraudScore, fraudTier, fraudSignals, awardedTo, publishedAt, bidWindowDays, evidencePackage]
+      properties:
+        id:
+          type: integer
+        tenderId:
+          type: string
+        title:
+          type: string
+        department:
+          type: string
+        state:
+          type: string
+        contractValue:
+          type: number
+        awardedValue:
+          type: ["number", "null"]
+        fraudScore:
+          type: number
+        fraudTier:
+          type: string
+          enum: [critical, high, medium, low]
+        fraudSignals:
+          type: array
+          items:
+            type: string
+        primarySignal:
+          type: string
+        awardedTo:
+          type: string
+        publishedAt:
+          type: string
+        bidWindowDays:
+          type: integer
+        priceRatio:
+          type: ["number", "null"]
+        source:
+          type: string
+        eligibilityCriteria:
+          type: string
+        technicalSpecs:
+          type: string
+        numberOfBidders:
+          type: integer
+        allBidders:
+          type: array
+          items:
+            type: string
+        evidencePackage:
+          $ref: "#/components/schemas/EvidencePackage"
+        rtiStatus:
+          type: ["string", "null"]
+
+    EvidencePackage:
+      type: object
+      required: [executiveSummary, signalBreakdown, contractorProfile, priceComparison, legalProvisions, recommendedAction]
+      properties:
+        executiveSummary:
+          type: string
+        signalBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/FraudSignalDetail"
+        contractorProfile:
+          $ref: "#/components/schemas/ContractorProfile"
+        priceComparison:
+          $ref: "#/components/schemas/PriceComparison"
+        legalProvisions:
+          type: array
+          items:
+            type: string
+        recommendedAction:
+          type: string
+        timelineAnomalies:
+          type: array
+          items:
+            type: string
+
+    ContractorProfile:
+      type: object
+      required: [name, cin, registrationDate, totalTendersWon, totalValue]
+      properties:
+        name:
+          type: string
+        cin:
+          type: string
+        registrationDate:
+          type: string
+        totalTendersWon:
+          type: integer
+        totalValue:
+          type: number
+        linkedEntities:
+          type: array
+          items:
+            type: string
+        winConcentration:
+          type: ["number", "null"]
+
+    PriceComparison:
+      type: object
+      required: [awardedPrice, marketPrice, ratio, sources]
+      properties:
+        awardedPrice:
+          type: number
+        marketPrice:
+          type: number
+        ratio:
+          type: number
+        unit:
+          type: string
+        sources:
+          type: array
+          items:
+            type: string
+
+    Contractor:
+      type: object
+      required: [id, name, cin, state, flaggedTenders, totalValue, riskScore]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        cin:
+          type: string
+        state:
+          type: string
+        registrationDate:
+          type: string
+        flaggedTenders:
+          type: integer
+        totalValue:
+          type: number
+        riskScore:
+          type: number
+        primarySignals:
+          type: array
+          items:
+            type: string
+
+    ContractorListResponse:
+      type: object
+      required: [contractors, total, page, limit]
+      properties:
+        contractors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contractor"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    ContractorDetail:
+      type: object
+      required: [id, name, cin, state, flaggedTenders, totalValue, riskScore, tenders]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        cin:
+          type: string
+        state:
+          type: string
+        registrationDate:
+          type: string
+        flaggedTenders:
+          type: integer
+        totalValue:
+          type: number
+        riskScore:
+          type: number
+        primarySignals:
+          type: array
+          items:
+            type: string
+        linkedEntities:
+          type: array
+          items:
+            type: string
+        directors:
+          type: array
+          items:
+            type: string
+        tenders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tender"
+
+    RtiApplication:
+      type: object
+      required: [id, tenderId, tenderTitle, department, status, questions, legalBasis, createdAt]
+      properties:
+        id:
+          type: integer
+        tenderId:
+          type: string
+        tenderTitle:
+          type: string
+        department:
+          type: string
+        pioName:
+          type: string
+        pioAddress:
+          type: string
+        status:
+          type: string
+          enum: [drafted, submitted, responded, appealed]
+        questions:
+          type: array
+          items:
+            type: string
+        legalBasis:
+          type: string
+        evidenceSummary:
+          type: string
+        filingDate:
+          type: ["string", "null"]
+        responseDeadline:
+          type: ["string", "null"]
+        confirmationNumber:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    RtiListResponse:
+      type: object
+      required: [rtis, total, page, limit]
+      properties:
+        rtis:
+          type: array
+          items:
+            $ref: "#/components/schemas/RtiApplication"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    DashboardStats:
+      type: object
+      required: [tendersScannedToday, tendersScannedTotal, flaggedToday, flaggedTotal, fraudValueDetected, criticalCases, rtisFiled, statesCovered, lastScanTime]
+      properties:
+        tendersScannedToday:
+          type: integer
+        tendersScannedTotal:
+          type: integer
+        flaggedToday:
+          type: integer
+        flaggedTotal:
+          type: integer
+        fraudValueDetected:
+          type: number
+        criticalCases:
+          type: integer
+        rtisFiled:
+          type: integer
+        statesCovered:
+          type: integer
+        lastScanTime:
+          type: string
+        avgFraudScore:
+          type: number
+
+    StateHeatmapEntry:
+      type: object
+      required: [state, flaggedCount, fraudValue, avgScore]
+      properties:
+        state:
+          type: string
+        flaggedCount:
+          type: integer
+        fraudValue:
+          type: number
+        avgScore:
+          type: number
+
+    DepartmentLeaderboardEntry:
+      type: object
+      required: [department, flaggedCount, fraudValue, avgScore, topSignal]
+      properties:
+        department:
+          type: string
+        flaggedCount:
+          type: integer
+        fraudValue:
+          type: number
+        avgScore:
+          type: number
+        topSignal:
+          type: string
+
+    ActivityItem:
+      type: object
+      required: [id, type, message, tenderId, tenderTitle, score, timestamp]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [detection, rti_filed, rti_responded, new_scan]
+        message:
+          type: string
+        tenderId:
+          type: string
+        tenderTitle:
+          type: string
+        score:
+          type: number
+        state:
+          type: string
+        timestamp:
+          type: string
