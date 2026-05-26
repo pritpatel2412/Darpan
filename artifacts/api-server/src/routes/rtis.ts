@@ -69,6 +69,50 @@ router.get("/rtis/:id", async (req, res) => {
   }
 });
 
+router.patch("/rtis/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+
+    const { status, confirmationNumber, filingDate } = req.body;
+
+    const [existing] = await db
+      .select()
+      .from(rtisTable)
+      .where(eq(rtisTable.id, id))
+      .limit(1);
+
+    if (!existing) {
+      res.status(404).json({ error: "RTI not found" });
+      return;
+    }
+
+    const updateFields: Partial<typeof rtisTable.$inferSelect> = {};
+    if (status) updateFields.status = status;
+    if (confirmationNumber !== undefined) updateFields.confirmationNumber = confirmationNumber;
+    if (filingDate) {
+      const fd = new Date(filingDate);
+      updateFields.filingDate = fd;
+      // Set response deadline to 30 days after filing date
+      updateFields.responseDeadline = new Date(fd.getTime() + 30 * 24 * 60 * 60 * 1000);
+    }
+
+    const [updated] = await db
+      .update(rtisTable)
+      .set(updateFields)
+      .where(eq(rtisTable.id, id))
+      .returning();
+
+    res.json(formatRti(updated));
+  } catch (err) {
+    req.log.error({ err }, "Error updating RTI");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 function formatRti(r: typeof rtisTable.$inferSelect) {
   return {
     id: r.id,

@@ -14,6 +14,9 @@ import {
   Zap,
   FileText,
   X,
+  Users,
+  Share2,
+  Flame,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useGlobalSearch } from "@workspace/api-client-react";
@@ -25,6 +28,9 @@ const navSections = [
     label: "Intelligence",
     items: [
       { href: "/", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/scorecard", label: "Integrity Scorecards", icon: TrendingUp },
+      { href: "/network", label: "Corruption Network", icon: Share2 },
+      { href: "/march-rush", label: "Q4 March Rush", icon: Flame },
       { href: "/analytics", label: "Analytics", icon: BarChart2 },
     ],
   },
@@ -33,12 +39,20 @@ const navSections = [
     items: [
       { href: "/tenders", label: "Tenders Feed", icon: FileSearch },
       { href: "/contractors", label: "Contractors", icon: Building2 },
+      { href: "/officials", label: "Officials Watch", icon: Users },
     ],
   },
   {
     label: "Compliance",
     items: [
       { href: "/rti-tracker", label: "RTI Tracker", icon: ScrollText },
+      { href: "/whistleblower", label: "Whistleblower Vault", icon: ShieldAlert },
+    ],
+  },
+  {
+    label: "Systems",
+    items: [
+      { href: "/sandbox", label: "Scraper Sandbox", icon: Zap },
     ],
   },
 ];
@@ -53,7 +67,7 @@ function GlobalSearch() {
 
   const { data, isFetching } = useGlobalSearch(
     { q: debouncedQuery },
-    { query: { enabled: debouncedQuery.length >= 2 } }
+    { query: { enabled: debouncedQuery.length >= 2 } as any }
   );
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { pgTable, serial, text, numeric, integer, timestamp, jsonb, real } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, numeric, integer, timestamp, jsonb, real, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -25,6 +25,8 @@ export const tendersTable = pgTable("tenders", {
   technicalSpecs: text("technical_specs"),
   evidencePackage: jsonb("evidence_package"),
   rtiStatus: text("rti_status"),
+  isPreAward: boolean("is_pre_award").default(false).notNull(),
+  closingAt: timestamp("closing_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

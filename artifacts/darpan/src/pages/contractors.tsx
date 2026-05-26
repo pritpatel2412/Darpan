@@ -26,9 +26,9 @@ export default function Contractors() {
 
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: "Entities on Watchlist", value: isLoading ? "—" : data?.contractors.length ?? 0 },
-            { label: "Critical Risk (≥85)", value: isLoading ? "—" : data?.contractors.filter(c => c.riskScore >= 85).length ?? 0 },
-            { label: "Total Fraud Exposure", value: isLoading ? "—" : data ? formatIndianCurrency(data.contractors.reduce((s, c) => s + c.totalValue, 0)) : "—" },
+            { label: "Entities on Watchlist", value: isLoading || !Array.isArray(data?.contractors) ? "—" : data.contractors.length },
+            { label: "Critical Risk (≥85)", value: isLoading || !Array.isArray(data?.contractors) ? "—" : data.contractors.filter(c => c.riskScore >= 85).length },
+            { label: "Total Fraud Exposure", value: isLoading || !Array.isArray(data?.contractors) ? "—" : formatIndianCurrency(data.contractors.reduce((s, c) => s + c.totalValue, 0)) },
           ].map(({ label, value }) => (
             <div key={label} className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm p-5">
               <p className="text-[12px] text-[#aaaaaa] font-medium mb-1">{label}</p>
@@ -62,7 +62,7 @@ export default function Contractors() {
                       <td colSpan={7} className="px-6 py-4"><Skeleton className="h-5 w-full" /></td>
                     </tr>
                   ))
-                  : data?.contractors.map((c, i) => (
+                  : Array.isArray(data?.contractors) && data.contractors.map((c, i) => (
                     <tr key={c.id} className="border-b border-[#f7f7f7] hover:bg-[#fafafa] transition-colors group cursor-pointer">
                       <td className="px-6 py-4 text-[12px] text-[#aaaaaa] font-medium">{i + 1}</td>
                       <td className="px-6 py-4">
@@ -94,6 +94,11 @@ export default function Contractors() {
                     </tr>
                   ))
                 }
+                {!isLoading && (!Array.isArray(data?.contractors) || data.contractors.length === 0) && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-[#aaaaaa]">No contractors found.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

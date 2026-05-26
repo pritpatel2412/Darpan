@@ -43,18 +43,20 @@ export default function RtiTracker() {
   const { data, isLoading } = useListRtis({}, { query: { queryKey: getListRtisQueryKey({}) } });
   const { toast } = useToast();
 
-  const counts = data?.rtis.reduce<Record<string, number>>((acc, r) => {
-    acc[r.status] = (acc[r.status] ?? 0) + 1;
-    return acc;
-  }, {}) ?? {};
+  const counts = Array.isArray(data?.rtis)
+    ? data.rtis.reduce<Record<string, number>>((acc, r) => {
+        acc[r.status] = (acc[r.status] ?? 0) + 1;
+        return acc;
+      }, {})
+    : {};
 
   const handleExport = () => {
-    if (!data?.rtis.length) return;
+    if (!Array.isArray(data?.rtis) || !data.rtis.length) return;
     const headers = ["ID", "Tender ID", "Department", "Status", "Filing Date", "Response Deadline", "Confirmation Number"];
     const rows = data.rtis.map((r) => [
       r.id,
       r.tenderId,
-      `"${r.department.replace(/"/g, '""')}"`,
+      `"${(r.department ?? "").replace(/"/g, '""')}"`,
       r.status,
       r.filingDate ? format(new Date(r.filingDate), "dd/MM/yyyy") : "",
       r.responseDeadline ? format(new Date(r.responseDeadline), "dd/MM/yyyy") : "",
@@ -105,7 +107,7 @@ export default function RtiTracker() {
             </div>
             <button
               onClick={handleExport}
-              disabled={!data?.rtis.length}
+              disabled={!Array.isArray(data?.rtis) || !data.rtis.length}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-[#ebebeb] text-[12px] font-medium text-[#6a6a6a] hover:border-[#ff385c] hover:text-[#ff385c] disabled:opacity-40 transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
@@ -131,7 +133,7 @@ export default function RtiTracker() {
                       <td colSpan={6} className="px-6 py-4"><Skeleton className="h-5 w-full" /></td>
                     </tr>
                   ))
-                  : data?.rtis.map((rti) => (
+                  : Array.isArray(data?.rtis) && data.rtis.map((rti) => (
                     <tr key={rti.id} className="border-b border-[#f7f7f7] last:border-0 hover:bg-[#fafafa] transition-colors group">
                       <td className="px-6 py-4 font-mono text-[13px] text-[#222222] font-medium">{rti.tenderId}</td>
                       <td className="px-6 py-4 text-[13px] text-[#3f3f3f] max-w-[200px] truncate">{rti.department}</td>
@@ -139,7 +141,7 @@ export default function RtiTracker() {
                       <td className="px-6 py-4 text-[13px] text-[#6a6a6a]">
                         {rti.filingDate ? format(new Date(rti.filingDate), "dd MMM yyyy") : "—"}
                       </td>
-                      <td className="px-6 py-4"><DeadlineCell deadline={rti.responseDeadline} /></td>
+                      <td className="px-6 py-4"><DeadlineCell deadline={rti.responseDeadline ?? null} /></td>
                       <td className="px-6 py-4">
                         <Link href={`/rti/${rti.id}`}>
                           <button className="flex items-center gap-1 text-[12px] text-[#aaaaaa] hover:text-[#ff385c] transition-colors opacity-0 group-hover:opacity-100">
@@ -150,7 +152,7 @@ export default function RtiTracker() {
                     </tr>
                   ))
                 }
-                {data?.rtis.length === 0 && (
+                {(!Array.isArray(data?.rtis) || data.rtis.length === 0) && !isLoading && (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-[#aaaaaa] text-[14px]">No RTI applications filed yet.</td>
                   </tr>

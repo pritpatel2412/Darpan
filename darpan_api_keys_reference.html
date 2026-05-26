@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Darpan — API Keys Reference & Free Competitors</title>
+  <style>
+    :root {
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f7f7f7;
+      --color-border-tertiary: #ebebeb;
+      --color-text-primary: #222222;
+      --color-text-secondary: #6a6a6a;
+      --color-text-tertiary: #aaaaaa;
+      --color-text-link: #ff385c;
+      --font-sans: 'Inter', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #fafafa;
+      padding: 30px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #ebebeb;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .header {
+      margin-bottom: 25px;
+      border-bottom: 1px solid #ebebeb;
+      padding-bottom: 20px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header p {
+      font-size: 13.5px;
+      color: var(--color-text-secondary);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .wrap { font-family: var(--font-sans, sans-serif); padding: 4px 0 12px; }
+    .section-head { display: flex; align-items: center; gap: 8px; margin: 25px 0 12px; }
+    .section-icon { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .section-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-secondary); }
+    .card { border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; margin-bottom: 12px; overflow: hidden; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.01); }
+    .card-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: var(--color-background-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+    .card-name { font-size: 14px; font-weight: 700; color: var(--color-text-primary); flex: 1; }
+    .badge { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; letter-spacing: 0.05em; }
+    .badge-free { background: #E6F5EC; color: #0F5132; border: 1px solid #c2ebd0; }
+    .badge-paid { background: #FDECEA; color: #8B1A1A; border: 1px solid #f9cdca; }
+    .badge-freemium { background: #FEF3DC; color: #854F0B; border: 1px solid #fce2b6; }
+    .card-body { padding: 14px 16px; background: var(--color-background-primary); }
+    .row { display: flex; gap: 12px; margin-bottom: 8px; align-items: flex-start; }
+    .row:last-child { margin-bottom: 0; }
+    .row-label { font-size: 10px; font-weight: 700; color: var(--color-text-tertiary); letter-spacing: .05em; text-transform: uppercase; min-width: 100px; margin-top: 3px; }
+    .row-val { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; flex: 1; }
+    .row-val a { color: var(--color-text-link); font-weight: 700; text-decoration: none; border-bottom: 1px dashed var(--color-text-link); padding-bottom: 1px; }
+    .row-val a:hover { border-bottom-style: solid; opacity: 0.85; }
+    .features { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .ftag { font-size: 10.5px; background: var(--color-background-secondary); color: var(--color-text-secondary); padding: 3px 8px; border-radius: 6px; border: 0.5px solid var(--color-border-tertiary); font-weight: 500; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .sum-card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: 10px; padding: 12px 14px; text-align: center; }
+    .sum-val { font-size: 24px; font-weight: 800; color: var(--color-text-primary); }
+    .sum-label { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .highlight-box { background: #fffcf0; border: 1px solid #fce2b6; border-radius: 10px; padding: 14px; font-size: 12.5px; color: #854F0B; line-height: 1.5; margin-top: 10px; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1> दर्पण (Darpan) API Configuration Console</h1>
+    <p>A reference checklist of standard public APIs, messaging nodes, and local data registries. All paid utilities feature <strong>100% Free Competitor Swaps</strong> to guarantee a zero-cost local execution during the hackathon evaluation.</p>
+  </div>
+
+  <div class="wrap">
+
+  <div class="summary-grid">
+    <div class="sum-card"><div class="sum-val">8</div><div class="sum-label">Active API Keys</div></div>
+    <div class="sum-card"><div class="sum-val" style="color:#0F5132">100%</div><div class="sum-label">Free Setup Options</div></div>
+    <div class="sum-card"><div class="sum-val" style="color:#ff385c">0 Cost</div><div class="sum-label">Demo Overhead</div></div>
+  </div>
+
+  <!-- CORE AI -->
+  <div class="section-head">
+    <div class="section-icon" style="background:#ff385c/10; color:#ff385c">🤖</div>
+    <span class="section-title">Core AI Stack & Swaps</span>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-name">OpenAI Codex API</span>
+      <span class="badge badge-paid">PAID API</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Free Competitor</span><span class="row-val"><strong>Groq API (Llama 3.1)</strong> or <strong>Google Gemini API (Gemini Flash)</strong></span></div>
+      <div class="row"><span class="row-label">Get Free Key</span><span class="row-val"><a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> (Get a 100% free key immediately) OR <a href="https://aistudio.google.com/" target="_blank">aistudio.google.com</a> (Free AI Studio access with high tier limits)</span></div>
+      <div class="row"><span class="row-label">Key name</span><span class="row-val"><code>GROQ_API_KEY</code> (Already active and loaded in your <code>.env</code> file!)</span></div>
+      <div class="row"><span class="row-label">Used for</span>
+        <div class="features">
+          <span class="ftag">Self-healing scraper</span><span class="ftag">RTI application drafter</span><span class="ftag">Journalist CoPilot news writer</span><span class="ftag">Parliament Question Generator</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-name">Groq API (Llama 3.3 70B)</span>
+      <span class="badge badge-free">100% FREE TIER</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Get Key Link</span><span class="row-val"><a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> — Free signup, no credit card required.</span></div>
+      <div class="row"><span class="row-label">Key name</span><span class="row-val"><code>GROQ_API_KEY</code> (Active in your local config)</span></div>
+      <div class="row"><span class="row-label">Used for</span>
+        <div class="features">
+          <span class="ftag">Fraud signal orchestration</span><span class="ftag">Pre-award risk scan</span><span class="ftag">Department Integrity scoring</span><span class="ftag">Whistleblower tip triage</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-name">NVIDIA NIMs API</span>
+      <span class="badge badge-free">100% FREE TIER</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Get Key Link</span><span class="row-val"><a href="https://build.nvidia.com" target="_blank">build.nvidia.com</a> — Instantly retrieve free embedding credentials upon email verification.</span></div>
+      <div class="row"><span class="row-label">Key name</span><span class="row-val"><code>NVIDIA_API_KEY</code> (Already active and loaded!)</span></div>
+      <div class="row"><span class="row-label">Used for</span>
+        <div class="features">
+          <span class="ftag">Tender DNA Fingerprinting</span><span class="ftag">Spec similarity index matching</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-name">Sarvam AI API</span>
+      <span class="badge badge-freemium">FREE TRIAL CREDITS</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Get Key Link</span><span class="row-val"><a href="https://dashboard.sarvam.ai" target="_blank">dashboard.sarvam.ai</a> — Free credits on signup. Generates wave WAV speech call alerts.</span></div>
+      <div class="row"><span class="row-label">Key name</span><span class="row-val"><code>SARVAM_API_KEY</code> (Already configured in environment)</span></div>
+      <div class="row"><span class="row-label">Used for</span>
+        <div class="features">
+          <span class="ftag">Voice alerts in Hindi/Gujarati/Tamil</span><span class="ftag">Whistleblower regional voice transcribing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA SOURCES -->
+  <div class="section-head">
+    <div class="section-icon" style="background:#0F5132/10; color:#0F5132">🔍</div>
+    <span class="section-title">Data Registries & Mappers</span>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-name">TinyFish Search API</span>
+      <span class="badge badge-free">COMPLETELY FREE</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Get Key Link</span><span class="row-val"><a href="https://agent.tinyfish.ai/mcp" target="_blank">agent.tinyfish.ai/mcp</a> — Automatically active for live web checks.</span></div>
+      <div class="row"><span class="row-label">Key name</span><span class="row-val"><code>TINYFISH_API_KEY</code> (Active in your local config)</span></div>
+      <div class="row"><span class="row-label">Used for</span>
+        <div class="features">
+          <span class="ftag">Live market price survey checks</span><span class="ftag">Contractor corporate overlays check</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-name">Bhuvan / ISRO Satellite Map</span>
+      <span class="badge badge-free">COMPLETELY FREE</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Get Map Portal</span><span class="row-val"><a href="https://bhuvan.nrsc.gov.in" target="_blank">bhuvan.nrsc.gov.in</a> — Free open public satellite portal. No API keys required for web tile retrieval.</span></div>
+      <div class="row"><span class="row-label">UI Redirect</span><span class="row-val">DARPAN automatically prepares coordinates and maps pre-filled state viewer links for physical road progress checks.</span></div>
+      <div class="row"><span class="row-label">Used for</span>
+        <div class="features">
+          <span class="ftag">Ghost Project satellite coordinate tracker</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGING & ALERTS -->
+  <div class="section-head">
+    <div class="section-icon" style="background:#854F0B/10; color:#854F0B">📱</div>
+    <span class="section-title">Outbound Alerts & Swaps</span>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-name">Twilio / WhatsApp Business API</span>
+      <span class="badge badge-paid">PAID / VERIFICATION DELAYS</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Free Competitor</span><span class="row-val"><strong>Telegram Bot API</strong> (100% free, no approvals, setup in under 2 minutes)</span></div>
+      <div class="row"><span class="row-label">Get Free Key</span><span class="row-val">Search for <a href="https://t.me/BotFather" target="_blank">BotFather on Telegram</a>, type <code>/newbot</code>, and get an immediate 100% free bot token!</span></div>
+      <div class="row"><span class="row-label">Cost</span><span class="row-val">Completely free forever for unlimited push notifications. Mapped via simple HTTP POST.</span></div>
+      <div class="row"><span class="row-label">Used for</span>
+        <div class="features">
+          <span class="ftag">Pre-close pre-award WhatsApp/Telegram alerts</span><span class="ftag">RTI filing watchdog updates</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFRASTRUCTURE -->
+  <div class="section-head">
+    <div class="section-icon" style="background:#2E5FA3/10; color:#2E5FA3">⚙️</div>
+    <span class="section-title">Database & Infrastructure</span>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-name">Neon serverless PostgreSQL</span>
+      <span class="badge badge-free">COMPLETELY FREE</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Get DB Link</span><span class="row-val"><a href="https://neon.tech" target="_blank">neon.tech</a> — Launch a free serverless PG database in one-click.</span></div>
+      <div class="row"><span class="row-label">Key name</span><span class="row-val"><code>DATABASE_URL</code> (Already active and pointing to your live Neon database!)</span></div>
+      <div class="row"><span class="row-label">Used for</span>
+        <div class="features">
+          <span class="ftag">Flagged tenders storage</span><span class="ftag">Whistleblower tip encryption registry</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-name">Resend Email Gateway</span>
+      <span class="badge badge-free">COMPLETELY FREE</span>
+    </div>
+    <div class="card-body">
+      <div class="row"><span class="row-label">Get Key Link</span><span class="row-val"><a href="https://resend.com" target="_blank">resend.com</a> — Instantly get free transaction email credentials (3,000 emails/month free).</span></div>
+      <div class="row"><span class="row-label">Key name</span><span class="row-val"><code>RESEND_API_KEY</code> (Optional local email dispatcher)</span></div>
+      <div class="row"><span class="row-label">Used for</span>
+        <div class="features">
+          <span class="ftag">Email digests for RTI activists</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    💡 <strong>Environment Status</strong>: Your monorepo is already fully configured in the <code>.env</code> file with live, valid, and fully-functional free/freemium API keys (Groq, Sarvam, NVIDIA, TinyFish, and Neon Postgres DB)! No additional signups are required for your hackathon evaluation and local testing.
+  </div>
+
+  </div>
+</div>
+
+</body>
+</html>

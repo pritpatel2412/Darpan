@@ -79,10 +79,12 @@ export default function Analytics() {
   const { data: leaderboard, isLoading: leaderboardLoading } = useGetDepartmentLeaderboard();
   const { data: tendersData, isLoading: tendersLoading } = useListTenders({ limit: 100 });
 
-  const tierCounts = tendersData?.tenders.reduce<Record<string, number>>((acc, t) => {
-    acc[t.fraudTier] = (acc[t.fraudTier] ?? 0) + 1;
-    return acc;
-  }, {}) ?? {};
+  const tierCounts = Array.isArray(tendersData?.tenders)
+    ? tendersData.tenders.reduce<Record<string, number>>((acc, t) => {
+        acc[t.fraudTier] = (acc[t.fraudTier] ?? 0) + 1;
+        return acc;
+      }, {})
+    : {};
 
   const tierPieData = Object.entries(tierCounts).map(([tier, count]) => ({
     name: tier.charAt(0).toUpperCase() + tier.slice(1),
@@ -90,26 +92,32 @@ export default function Analytics() {
     fill: TIER_COLORS[tier] ?? "#aaaaaa",
   }));
 
-  const signalCounts = tendersData?.tenders.reduce<Record<string, number>>((acc, t) => {
-    if (t.primarySignal) acc[t.primarySignal] = (acc[t.primarySignal] ?? 0) + 1;
-    return acc;
-  }, {}) ?? {};
+  const signalCounts = Array.isArray(tendersData?.tenders)
+    ? tendersData.tenders.reduce<Record<string, number>>((acc, t) => {
+        if (t.primarySignal) acc[t.primarySignal] = (acc[t.primarySignal] ?? 0) + 1;
+        return acc;
+      }, {})
+    : {};
 
   const signalBarData = Object.entries(signalCounts)
     .sort((a, b) => b[1] - a[1])
     .map(([signal, count]) => ({ signal, count }));
 
-  const leaderboardBarData = leaderboard?.slice(0, 6).map((d) => ({
-    name: d.department.length > 18 ? d.department.slice(0, 18) + "…" : d.department,
-    avgScore: d.avgScore,
-    flaggedCount: d.flaggedCount,
-  })) ?? [];
+  const leaderboardBarData = Array.isArray(leaderboard)
+    ? leaderboard.slice(0, 6).map((d) => ({
+        name: d.department.length > 18 ? d.department.slice(0, 18) + "…" : d.department,
+        avgScore: d.avgScore,
+        flaggedCount: d.flaggedCount,
+      }))
+    : [];
 
-  const stateScoreData = heatmap?.map((h) => ({
-    state: h.state,
-    avgScore: h.avgScore,
-    flaggedCount: h.flaggedCount,
-  })) ?? [];
+  const stateScoreData = Array.isArray(heatmap)
+    ? heatmap.map((h) => ({
+        state: h.state,
+        avgScore: h.avgScore,
+        flaggedCount: h.flaggedCount,
+      }))
+    : [];
 
   const radarData = [
     { subject: "Price Inflation", A: 88 },
@@ -146,9 +154,9 @@ export default function Analytics() {
             {
               icon: Target,
               label: "Avg Fraud Score",
-              value: tendersLoading
+              value: tendersLoading || !Array.isArray(tendersData?.tenders)
                 ? "—"
-                : tendersData?.tenders.length
+                : tendersData.tenders.length
                 ? `${(tendersData.tenders.reduce((s, t) => s + t.fraudScore, 0) / tendersData.tenders.length).toFixed(1)}`
                 : "—",
               sub: "Across all flagged",

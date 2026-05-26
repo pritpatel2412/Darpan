@@ -11,6 +11,12 @@ import ContractorDetail from "@/pages/contractor-detail";
 import RtiTracker from "@/pages/rti-tracker";
 import RtiDetail from "@/pages/rti-detail";
 import Analytics from "@/pages/analytics";
+import Sandbox from "@/pages/sandbox";
+import Whistleblower from "@/pages/whistleblower";
+import Scorecard from "@/pages/scorecard";
+import OfficialsWatch from "@/pages/officials";
+import CorruptionNetwork from "@/pages/network";
+import MarchRush from "@/pages/march-rush";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +24,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/scorecard" component={Scorecard} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/tenders" component={Tenders} />
       <Route path="/tenders/:id" component={TenderDetail} />
@@ -25,6 +32,11 @@ function Router() {
       <Route path="/contractors/:id" component={ContractorDetail} />
       <Route path="/rti-tracker" component={RtiTracker} />
       <Route path="/rti/:id" component={RtiDetail} />
+      <Route path="/whistleblower" component={Whistleblower} />
+      <Route path="/officials" component={OfficialsWatch} />
+      <Route path="/network" component={CorruptionNetwork} />
+      <Route path="/march-rush" component={MarchRush} />
+      <Route path="/sandbox" component={Sandbox} />
       <Route component={NotFound} />
     </Switch>
   );
