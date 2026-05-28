@@ -14,6 +14,8 @@ from integrations.tinyfish import TinyFishClient
 from integrations.nvidia_nims import NIMSClient
 from integrations.groq_client import GroqClient
 from integrations.mca21 import MCA21Client
+from integrations.scrapling_fetcher import ScraplingFetcher
+
 
 @dataclass
 class FetchResult:
@@ -28,12 +30,15 @@ class SmartFetcher:
     """
     Multi-source lookup engine that cascades from highly structured 
     authoritative sources down to live web search scrapers.
+    Prioritizes Scrapling's high-stealth scraping framework, 
+    with standard APIs and TinyFish search as fallback cascades.
     """
     def __init__(self):
         self.tinyfish = TinyFishClient()
         self.nims = NIMSClient()
         self.groq = GroqClient()
         self.mca = MCA21Client()
+        self.scrapling = ScraplingFetcher()
         # Stub Redis URL for local cache simulation
         self.redis_available = False
 
@@ -41,8 +46,9 @@ class SmartFetcher:
         """
         Tender detail lookup cascade:
         1. Local DB (Cache hit)
-        2. Portal-specific Scrapers (GeM API / CPPP)
-        3. TinyFish Search
+        2. Scrapling Stealthy / Dynamic Portal Crawler (First Priority)
+        3. Existing Hardcoded/Mock Scrapers (Fallback)
+        4. TinyFish Search + Groq Extraction (Second Fallback)
         """
         # Step 1: Check Local DB Cache
         async with async_session_maker() as session:
@@ -53,13 +59,22 @@ class SmartFetcher:
                 t_dict = {column.name: getattr(tender, column.name) for column in tender.__table__.columns if column.name != "spec_embedding"}
                 return FetchResult(data=t_dict, source="local_db", confidence=1.0, raw_url=tender.source_url or "", cached=True)
 
-        # Step 2: In production, trigger specific crawlers
-        # We mock crawl results based on typical seed cases for local execution
+        # Step 2: Scrapling High-Stealth Direct Portal Crawler (Priority 1)
+        scrapling_res = await self.scrapling.fetch_tender_from_portal(tender_id, portal)
+        if scrapling_res:
+            return FetchResult(
+                data=scrapling_res,
+                source="scrapling_stealthy_crawling",
+                confidence=0.98,
+                raw_url=scrapling_res.get("source_url", "")
+            )
+
+        # Step 3: Portal-specific Scrapers (Fallback 1)
         mock_crawl = self._get_hardcoded_tender_details(tender_id)
         if mock_crawl:
             return FetchResult(data=mock_crawl, source=f"{portal}_crawler_mocked", confidence=0.92, raw_url=mock_crawl.get("source_url", ""))
 
-        # Step 3: TinyFish Search Cascade
+        # Step 4: TinyFish Search Cascade (Fallback 2)
         search_query = f"government tender '{tender_id}' site:{self._portal_domain(portal)}"
         search_results = await self.tinyfish.search(search_query)
         if search_results:
@@ -77,9 +92,10 @@ class SmartFetcher:
     async def fetch_company(self, name: str, cin: Optional[str] = None) -> FetchResult:
         """
         Company lookup cascade:
-        1. Local Contractors DB
-        2. ZaubaCorp/Tofler MCA21 registry Playwright lookup
-        3. TinyFish search
+        1. Local Contractors DB (Cache hit)
+        2. Scrapling Corporate Register Crawler (First Priority)
+        3. Existing ZaubaCorp/Tofler Playwright Scraper (Fallback 1)
+        4. TinyFish Search (Fallback 2)
         """
         # Step 1: Check DB Cache
         async with async_session_maker() as session:
@@ -97,7 +113,31 @@ class SmartFetcher:
                 c_dict = {column.name: getattr(contractor, column.name) for column in contractor.__table__.columns if column.name != "name_embedding"}
                 return FetchResult(data=c_dict, source="local_db", confidence=1.0, raw_url="", cached=True)
 
-        # Step 2: ZaubaCorp / MCA21 Scraper
+        # Step 2: Scrapling High-Stealth Corporate Register Crawler (Priority 1)
+        scrapling_profile = await self.scrapling.fetch_company_mca21(name, cin)
+        if scrapling_profile:
+            async with async_session_maker() as session:
+                new_c = Contractor(
+                    cin=scrapling_profile["cin"],
+                    name=scrapling_profile["name"],
+                    name_normalized=scrapling_profile["name"].lower().strip(),
+                    registration_date=scrapling_profile.get("registration_date"),
+                    registration_source=scrapling_profile.get("registration_source", "mca21"),
+                    registered_state=scrapling_profile.get("registered_state", "Maharashtra"),
+                    registered_address=scrapling_profile.get("registered_address"),
+                    address_hash=scrapling_profile.get("address_hash"),
+                    directors=scrapling_profile.get("directors", []),
+                    watchlist=scrapling_profile.get("ed_case_found", False),
+                    watchlist_reason=scrapling_profile.get("ed_case_details"),
+                    ed_case_found=scrapling_profile.get("ed_case_found", False),
+                    ed_case_details=scrapling_profile.get("ed_case_details")
+                )
+                session.add(new_c)
+                await session.commit()
+                c_dict = {column.name: getattr(new_c, column.name) for column in new_c.__table__.columns if column.name != "name_embedding"}
+                return FetchResult(data=c_dict, source="scrapling_mca_scraping", confidence=0.98, raw_url="")
+
+        # Step 3: ZaubaCorp / MCA21 Scraper (Fallback 1)
         mca_profile = await self.mca.lookup_company(name, cin)
         if mca_profile:
             # Upsert into contractor database
@@ -122,7 +162,7 @@ class SmartFetcher:
                 c_dict = {column.name: getattr(new_c, column.name) for column in new_c.__table__.columns if column.name != "name_embedding"}
                 return FetchResult(data=c_dict, source="mca21_registry", confidence=0.95, raw_url="")
 
-        # Step 3: TinyFish Search
+        # Step 4: TinyFish Search (Fallback 2)
         search_query = f"'{name or cin}' company directors MCA CIN details"
         search_results = await self.tinyfish.search(search_query)
         if search_results:
@@ -137,16 +177,30 @@ class SmartFetcher:
         """
         Market price comparison cascade:
         1. Redis Cache
-        2. GeM Catalog Pricing Reference
-        3. TinyFish Web Search Query variations
+        2. Scrapling Live Catalog Price Scraper (First Priority)
+        3. GeM Catalog Pricing Reference (Fallback 1)
+        4. TinyFish Web Search + NVIDIA Price Extractions (Fallback 2)
         """
         item_name = item_desc.get("item_name", "Standard Item")
         quantity = item_desc.get("quantity", 1)
         
-        # Step 1: Check mock cache / Redis
-        # (Redis cache omitted locally to guarantee active execution flow)
+        # Step 1: Check Redis (Omitted locally to guarantee active execution flow)
 
-        # Step 2: Average GeM Catalogue Prices
+        # Step 2: Scrapling Catalog Price Scraper (Priority 1)
+        scrapling_prices = await self.scrapling.fetch_market_price(item_name)
+        if scrapling_prices:
+            return FetchResult(
+                data={
+                    "price": scrapling_prices["price"],
+                    "sources": scrapling_prices["sources"],
+                    "confidence": scrapling_prices["confidence"]
+                },
+                source="scrapling_price_crawling",
+                confidence=0.97,
+                raw_url=scrapling_prices["sources"][0]["url"] if scrapling_prices["sources"] else ""
+            )
+
+        # Step 3: Average GeM Catalogue Prices (Fallback 1)
         gem_price = self._get_gem_catalogue_price(item_name)
         if gem_price:
             return FetchResult(
@@ -156,7 +210,7 @@ class SmartFetcher:
                 raw_url="https://gem.gov.in/catalogue"
             )
 
-        # Step 3: TinyFish Search + NVIDIA Price Extractions
+        # Step 4: TinyFish Search + NVIDIA Price Extractions (Fallback 2)
         queries = await self.groq.generate_price_queries(item_desc)
         all_prices = []
         
