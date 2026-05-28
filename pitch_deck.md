@@ -1,51 +1,81 @@
-# DARPAN (दर्पण) — Pitch Deck (Phase 1)
+# DARPAN (दर्पण) — Pitch Deck
 
-AI-Powered Government Procurement Fraud Detection, Scoring, & Citizen Empowerment.
-
----
-
-## Slide 1: The Problem (Core Pain Point)
-### *Procurement Fraud: The Blindspot of Public Spending*
-
-Public procurement in India faces systemic leakage, bid-rigging, spec-tailoring, and vendor collusions, eroding public trust and depleting national resources.
-
-*   **Massive Financial Leakage**: Over ₹5,000 Crore is estimated to be lost annually to corrupt, uncompetitive public tenders across municipal, state, and national portals.
-*   **The Auditing Gap**: Traditional vigilance audits are *reactive* and slow—taking years to compile. Less than 1% of total tenders are ever audited, leaving cartels operating with impunity.
-*   **The Citizen Information Barrier**: The Right to Information (RTI) Act is a powerful anti-corruption tool, but drafting legally-sound RTI applications with specific, high-quality evidence is too complex and opaque for the average citizen.
+> **"Mirror of Procurement Integrity & AI-Driven Public Accountability"**
+>
+> DARPAN is an advanced vigilance analytics platform that scans public procurement systems, flags bid-rigging and pricing fraud in real-time, maps corporate cartels, and automates citizen-led legal actions (RTI filings) via multilingual AI engines.
 
 ---
 
-## Slide 2: The Proposed Solution & Key Features
-### *DARPAN (दर्पण): Real-Time Integrity & Automated Legal Action*
+## 📽️ Slide 1: The Problem (Core Pain Point)
 
-DARPAN acts as a digital mirror to public spending, crawling e-procurement sites to detect corruption patterns in real-time, score them, and instantly arm citizens with auto-generated legal RTI filings.
+### *Procurement Fraud: The Invisible Tax on Public Infrastructure*
+Public sector procurement in India accounts for up to **20% of GDP**, but systemic collusion, bid-rigging, and specification tailoring drain massive amounts of taxpayer capital annually.
 
-*   **Multi-Signal Integrity Scoring**: Uses 7+ distinct heuristic and NLP signal checks (e.g., Price Inflation vs. Market Prices, Specification Tailoring, Contractor Win Concentration, Single-Bid Anomalies) to flag suspicious tenders.
-*   **High-Fidelity Evidence Packages**: Stores structured corruption metrics inside PostgreSQL JSONB records, providing interactive charts, price comparison details, and contractor risk metrics.
-*   **Auto-Generated Legal RTI applications**: Translates complex data observations into structured legal RTI letters in one click, highlighting the exact flags and requesting official explanations.
-*   **Corruption Network Mapping**: Exposes complex networks, cartels, and linked entities through a visual relationship graph of contractors and bidding history.
-
----
-
-## Slide 3: Tools & Technical Stack
-### *Scalable, Contract-First Architecture built for Precision and Speed*
-
-DARPAN is built using a highly scalable, robust stack designed to handle thousands of procurement items with sub-second scoring pipelines.
-
-*   **Frontend**: React 18, Vite (for blazing fast build/HMR), Wouter (lightweight routing), Lucide Icons, and customized Airbnb design tokens (soft shadow grids, premium Outfit/Inter fonts, Rausch primary colors).
-*   **Backend**: Node.js 24 + Express 5 (latest routing capabilities) with a contract-first OpenAPI specification that drives type-safety.
-*   **Database & ORM**: PostgreSQL database leveraging rich JSONB properties to store evidence packages, accessed via the type-safe Drizzle ORM.
-*   **API & Code Generation**: Orval for compiling React Query hooks and Zod schemas directly from the OpenAPI contract, guaranteeing end-to-end frontend/backend contract synchronization.
-*   **Detection Algorithms**: Cosine similarity NLP calculations for spec-tailoring metrics, coupled with heavy database aggregation queries to flag win concentration anomalies.
+*   **⚠️ The Reactive Auditing Trap**: Standard vigilance processes (e.g., CVC, state audits) are completely reactive and slow. Audits occur 2–5 years after funds are disbursed, by which point the money is gone and shell vendors are dissolved. Fewer than **1% of all public tenders** are ever audited.
+*   **🤝 Monopolistic Cartel Rotations**: Bidding cartels rotate wins, share directors/addresses to submit simulated "cover bids," and artificially inflate final contract values by **2.5x to 4x** over competitive market rates.
+*   **📝 Opaque Specification Tailoring**: Departments write highly customized or brand-exclusive guidelines (e.g., proprietary equipment constraints, specialized certifications) specifically tailored to one preferred vendor to lock out competitive bidders.
+*   **🛑 The Citizen Action Friction**: While the **Right to Information (RTI) Act 2005** legally empowers taxpayers to demand procurement transparency, drafting a legally-binding, evidence-backed RTI inquiry is too technical and complex for the average citizen.
 
 ---
 
-## Slide 4: Ideal Customer Profile (ICP)
+## 📽️ Slide 2: Proposed Solution & The User Journey
+
+### *DARPAN (दर्पण): Real-Time Integrity Mirror & Automated Legal Recourse*
+DARPAN transforms public spending oversight from a slow, bureaucratic audit into a **real-time, proactive, and citizen-powered defense system**.
+
+```
+[1. Live Ingestion] ──► [2. 10-Signal Engine] ──► [3. Watchlist Alerts]
+                                                       │
+                                                       ▼
+[6. RTI Appeal Tracker] ◄── [5. AI Legal Drafting] ◄── [4. Cartel Graph]
+```
+
+### The 6-Step End-to-End User Journey
+1.  **Ingestion**: Scrapers automatically ingest active and recently awarded tenders from central registries (GeM, state e-tender portals).
+2.  **Diagnostic Scoring**: The **10-Signal Forensic Engine** processes every tender against pricing, specification, timing, and corporate parameters to calculate a 0-100 risk score.
+3.  **Vigilance Dashboard**: Anti-corruption officers and journalists inspect a real-time high-risk alert feed, sorted by gravity.
+4.  **Forensic Investigation**: The investigator clicks a flagged tender to review a deep **Evidence Package** highlighting unit-cost inflations, cosine spec-similarities, and an **Interactive Collusion Network Graph** exposing linked directors, shared corporate addresses, and bid rotation cartels.
+5.  **Multilingual AI Drafting**: With one click, the investigator generates a formal RTI filing. Citizens can also use **Sarvam-powered voice queries** in Hindi or English to describe a local infrastructure failure, which is translated and converted into a structured RTI request.
+6.  **Statutory Tracking**: The system registers the file and tracks the legal 30-day timeline, highlighting overdue responses to trigger second-level statutory appeals.
+
+---
+
+## 📽️ Slide 3: Tools & Technical Stack
+
+### *A Scale-Out, Decoupled Architecture Built for Sub-Second Forensic Audits*
+DARPAN is engineered with a high-throughput, contract-first design to sync heavy ML calculations with clean reactive dashboards:
+
+*   **🎨 Frontend (The User Experience)**:
+    *   *Next.js 16 (App Router, React 19)*: Delivers server-side rendering, exceptional SEO, and fast navigation.
+    *   *Tailwind CSS v4*: Provides rapid, utility-first aesthetic rendering.
+    *   *Recharts & Canvas Graphs*: Powers responsive data graphs and dynamic contractor/approver relationship mapping nodes.
+*   **⚙️ Backend (The Heavy Lifter)**:
+    *   *FastAPI (Python 3.11)*: High-performance asynchronous API endpoints serving predictive data.
+    *   *Celery & Redis*: Asynchronous task processor that handles massive scraper pipelines, text parsing, and background AI drafting.
+    *   *PostgreSQL & pgvector*: Relational storage leveraging JSONB records for granular evidence logs and vector columns for semantic specification comparison.
+*   **🤖 AI Stack & External Integrations**:
+    *   *NVIDIA NIMs & Groq (Llama 3.1 70B)*: Compiles raw procurement anomalies into highly formal legal RTI letters and provides detailed forensic narratives.
+    *   *Sarvam AI*: Voice synthesis, transcription, and translation, translating spoken Hindi/English prompts into legal documents.
+    *   *MCA21 (Corporate Registry)*: Traces company registration age, DINs, PANs, and shared corporate addresses.
+    *   *TinyFish*: Runs real-time web searches to gather prevailing market rates for cost comparison (S01).
+    *   *Playwright & BeautifulSoup4*: Directs background crawling of public portals.
+
+---
+
+## 📽️ Slide 4: Target Audience & ICP
+
 ### *Empowering the Custodians of Public Accountability*
+DARPAN connects raw data-intelligence to the specific agents of change who enforce transparency in public spending:
 
-DARPAN target users are anti-corruption actors who require data-driven leverage to audit, expose, and prevent public sector fraud.
-
-1.  **Investigative Journalists**: Media professionals who need concrete evidence packages, risk scores, and document templates to investigate municipal and state corruption stories.
-2.  **Anti-Corruption NGOs & Activists**: Organizations that monitor public expenditure and submit dozens of RTIs daily, requiring a platform to scale their oversight.
-3.  **Public Sector Auditors & Vigilance Officers**: Government officials (e.g., CVC, state departments) looking for pre-disbursement alerts to block fraudulent funds before contracts are signed.
-4.  **Active Citizens & RTI Advocates**: Individual taxpayers who want to hold their local municipal corporations accountable but lack the technical or legal drafting skills to submit a robust RTI.
+1.  **📊 Investigative Journalists**:
+    *   *Pain Point*: Lacks time and forensic data to verify corrupt procurement.
+    *   *Darpan Use Case*: Downloads ready-to-publish evidence packages, price comparison charts, and corporate cartel graphs to break exclusive municipal corruption stories.
+2.  **⚖️ Anti-Corruption NGOs & Activists**:
+    *   *Pain Point*: Needs to submit dozens of detailed, evidence-backed inquiries weekly.
+    *   *Darpan Use Case*: Automates the bulk drafting of legally sound RTI letters, monitoring statutory timelines across multiple departments.
+3.  **👮 Municipal Vigilance & Government Auditors**:
+    *   *Pain Point*: Traditional audits are too slow to stop fund disbursements.
+    *   *Darpan Use Case*: Receives pre-disbursement alerts of collusive bidding networks and win rotations to freeze funds *before* corrupt contracts are executed.
+4.  **🇮🇳 Active Taxpayers & Local Citizens**:
+    *   *Pain Point*: Demands local accountability (e.g., poorly paved roads) but lacks technical and legal drafting skills.
+    *   *Darpan Use Case*: Uses Hindi/English voice prompts to instantly generate, print, and track legally-binding local RTI applications.
