@@ -2,6 +2,8 @@
 
 > **दर्पण (Darpan - "The Digital Mirror")** is an advanced, real-time, AI-powered anti-corruption platform designed to detect fraud, collusion, and cartels in public procurement, map complex contractor networks, and instantly empower citizens to file legally-binding Right to Information (RTI) applications.
 
+![Darpan Procurement Fraud Detection Architecture](darpan_architecture.png)
+
 ---
 
 ## 👁️ Overview & The Problem
