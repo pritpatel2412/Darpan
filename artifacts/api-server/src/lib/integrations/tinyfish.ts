@@ -14,13 +14,14 @@ export interface TinyFishSearchResult {
  */
 export async function searchTinyFish(
   query: string,
-  location: string = "IN"
+  location: string = "IN",
+  allowFallback: boolean = true
 ): Promise<TinyFishSearchResult[]> {
   const apiKey = process.env.TINYFISH_API_KEY || process.env.TINYFFISH_API_KEY;
 
   if (!apiKey) {
-    logger.warn("TINYFISH_API_KEY is not configured. Falling back to mockup search results.");
-    return getFallbackSearchResults(query);
+    logger.warn("TINYFISH_API_KEY is not configured.");
+    return allowFallback ? getFallbackSearchResults(query) : [];
   }
 
   try {
@@ -29,7 +30,7 @@ export async function searchTinyFish(
     url.searchParams.append("location", location);
     url.searchParams.append("language", "en");
 
-    logger.info({ query, location }, "Executing TinyFish web search query");
+    logger.info({ query, location, allowFallback }, "Executing TinyFish web search query");
 
     const response = await fetch(url.toString(), {
       method: "GET",
@@ -41,8 +42,8 @@ export async function searchTinyFish(
 
     if (!response.ok) {
       const errText = await response.text();
-      logger.error({ status: response.status, errText }, "TinyFish Search API request failed. Falling back to mock search.");
-      return getFallbackSearchResults(query);
+      logger.error({ status: response.status, errText }, "TinyFish Search API request failed.");
+      return allowFallback ? getFallbackSearchResults(query) : [];
     }
 
     const data = await response.json() as any;
@@ -55,8 +56,8 @@ export async function searchTinyFish(
       snippet: r.snippet || r.description || "",
     }));
   } catch (err) {
-    logger.error({ err }, "Error during TinyFish search. Falling back to mock search.");
-    return getFallbackSearchResults(query);
+    logger.error({ err }, "Error during TinyFish search.");
+    return allowFallback ? getFallbackSearchResults(query) : [];
   }
 }
 

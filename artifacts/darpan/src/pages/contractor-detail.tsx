@@ -142,22 +142,43 @@ export default function ContractorDetail() {
         )}
 
         {tendersByValue.length > 0 && (
-          <div>
-            <h2 className="text-[16px] font-bold text-[#222222] mb-4">Contract Value Distribution</h2>
-            <div className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm p-6 h-[240px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={tendersByValue.map(t => ({ name: t.tenderId, value: t.contractValue, score: t.fraudScore }))} margin={{ top: 4, right: 10, left: -10, bottom: 40 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#6a6a6a", fontSize: 10 }} angle={-30} textAnchor="end" />
-                  <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1e7).toFixed(0)}Cr`} tick={{ fill: "#aaaaaa", fontSize: 11 }} />
-                  <Tooltip formatter={(v: number) => formatIndianCurrency(v)} contentStyle={{ borderRadius: "10px", border: "1px solid #ebebeb", fontSize: 13 }} />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={50} name="Contract Value">
-                    {tendersByValue.map((t, i) => (
-                      <Cell key={i} fill={t.fraudScore >= 85 ? "#ff385c" : t.fraudScore >= 70 ? "#f97316" : "#f59e0b"} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-[16px] font-bold text-[#222222] mb-4">Contract Value Distribution</h2>
+              <div className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm p-6 h-[240px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={tendersByValue.map(t => ({ name: t.tenderId, value: t.contractValue, score: t.fraudScore }))} margin={{ top: 4, right: 10, left: -10, bottom: 40 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#6a6a6a", fontSize: 10 }} angle={-30} textAnchor="end" />
+                    <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1e7).toFixed(0)}Cr`} tick={{ fill: "#aaaaaa", fontSize: 11 }} />
+                    <Tooltip formatter={(v: number) => formatIndianCurrency(v)} contentStyle={{ borderRadius: "10px", border: "1px solid #ebebeb", fontSize: 13 }} />
+                    <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40} name="Contract Value">
+                      {tendersByValue.map((t, i) => (
+                        <Cell key={i} fill={t.fraudScore >= 85 ? "#ff385c" : t.fraudScore >= 70 ? "#f97316" : "#f59e0b"} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-[16px] font-bold text-[#222222] mb-4">Tender Fraud Risk Profile</h2>
+              <div className="bg-white rounded-[14px] border border-[#ebebeb] shadow-sm p-6 h-[240px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={tendersByValue.map(t => ({ name: t.tenderId, score: t.fraudScore }))} margin={{ top: 4, right: 10, left: -10, bottom: 40 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#6a6a6a", fontSize: 10 }} angle={-30} textAnchor="end" />
+                    <YAxis axisLine={false} tickLine={false} domain={[0, 100]} tick={{ fill: "#aaaaaa", fontSize: 11 }} />
+                    <Tooltip formatter={(v: number) => [`${v}%`, "Risk Score"]} contentStyle={{ borderRadius: "10px", border: "1px solid #ebebeb", fontSize: 13 }} />
+                    <Bar dataKey="score" radius={[4, 4, 0, 0]} maxBarSize={40} name="Risk Score">
+                      {tendersByValue.map((t, i) => (
+                        <Cell key={i} fill={t.fraudScore >= 85 ? "#ff385c" : t.fraudScore >= 70 ? "#f97316" : "#f59e0b"} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         )}

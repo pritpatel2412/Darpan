@@ -49,3 +49,10 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Python Virtual Environments
+.venv/
+venv/
+*.pyc
+__pycache__/
+

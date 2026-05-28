@@ -17,6 +17,8 @@ import Scorecard from "@/pages/scorecard";
 import OfficialsWatch from "@/pages/officials";
 import CorruptionNetwork from "@/pages/network";
 import MarchRush from "@/pages/march-rush";
+import PitchDeck from "@/pages/pitch-deck";
+import ProductJourney from "@/pages/product-journey";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +26,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/pitch-deck" component={PitchDeck} />
+      <Route path="/product-journey" component={ProductJourney} />
       <Route path="/scorecard" component={Scorecard} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/tenders" component={Tenders} />

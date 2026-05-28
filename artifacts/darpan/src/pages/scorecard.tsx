@@ -143,7 +143,7 @@ export default function Scorecard() {
               National Procurement Integrity League Tables
             </h3>
             <p className="text-[12.5px] text-[#6a6a6a] leading-relaxed">
-              Based on Central Vigilance Commission guidelines, departments are dynamically graded from **A (Clean)** to **F (Highly Rigged)** based on live mathematical signals: single-bidder rates, price markup ratios, contractor concentration coefficients, and Q4 budget dumps.
+              Based on Central Vigilance Commission guidelines, departments are dynamically graded from <strong className="text-emerald-600 font-bold">A (Clean)</strong> to <strong className="text-rose-600 font-bold">F (Highly Rigged)</strong> based on live mathematical signals: single-bidder rates, price markup ratios, contractor concentration coefficients, and Q4 budget dumps.
             </p>
           </div>
           <div className="flex items-center gap-2 bg-[#ff385c]/5 border border-[#ff385c]/10 px-3 py-1.5 rounded-full text-[11px] font-bold text-[#ff385c]">

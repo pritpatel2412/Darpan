@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { FraudScoreBadge, FraudTierBadge } from "@/components/ui/fraud-badge";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 function StatCard({ title, value, icon: Icon, loading, accent }: {
   title: string;
@@ -88,6 +89,7 @@ function getCountdownText(closingAtStr?: string) {
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [scanResult, setScanResult] = useState<any>(null);
   const triggerScan = useTriggerScan();
 
@@ -126,15 +128,33 @@ export default function Dashboard() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ tenderId: instantId, portal: instantPortal }),
         })
-          .then((res) => res.json())
+          .then(async (res) => {
+            if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(errData.error || `HTTP error ${res.status}`);
+            }
+            return res.json();
+          })
           .then((data) => {
+            if (data.error) {
+              throw new Error(data.error);
+            }
             setInstantResult(data.tender);
             setIsInstantScanning(false);
             queryClient.invalidateQueries();
+            toast({
+              title: "Scan Successful",
+              description: `Tender ${data.tender.tenderId} audited successfully!`,
+            });
           })
           .catch((err) => {
             console.error("Instant scan failed:", err);
             setIsInstantScanning(false);
+            toast({
+              title: "Scan Failed",
+              description: err.message || "Tender could not be verified on public portal registries.",
+              variant: "destructive",
+            });
           });
       }
     }, 600);

@@ -71,32 +71,7 @@ const CONTRACTOR_TEMPLATES = [
 
 export async function seedDatabase() {
   try {
-    // 1. Check if Delhi Jal Board STP scam is already in the database
-    const [djbExisting] = await db
-      .select()
-      .from(tendersTable)
-      .where(sql`tenders.tender_id = 'GEM-2022-DL-1943'`)
-      .limit(1);
-
-    if (djbExisting) {
-      // Verify count is also high enough
-      const [countResult] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(tendersTable);
-      const count = Number(countResult?.count ?? 0);
-      
-      const [offCountRes] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(officialsTable);
-      const offCount = Number(offCountRes?.count ?? 0);
-
-      if (count >= 100 && offCount > 0) {
-        console.log("Database already has Delhi Jal Board tender, officials, and 100+ items. Skipping seeding.");
-        return;
-      }
-    }
-
-    console.log("DB tender or officials count is low. Initiating full 500+ seed...");
+    console.log("Forcing a fresh, high-fidelity database re-seed...");
 
     // 2. Wipe database tables first for clean pristine demo state
     await db.delete(activityTable);

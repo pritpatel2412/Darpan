@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { groqChatCompletion } from "../lib/integrations/groq";
 import { logger } from "../lib/logger";
+import { db } from "@workspace/db";
+import { sql } from "drizzle-orm";
 
 const router = Router();
 
@@ -118,6 +120,17 @@ export function parseTenderHTML(html) {
     logger.error({ err }, "Self-healing pipeline crash");
     healingLogs.unshift(`[${new Date().toLocaleTimeString()}] ERROR: Codex Self-Healing Agent timed out or crashed.`);
     res.status(500).json({ error: "Self-healing pipeline failed to complete." });
+  }
+});
+router.post("/sandbox/wipe-db", async (req, res) => {
+  try {
+    logger.info("Sandbox request to drop all database tables...");
+    await db.execute(sql`DROP TABLE IF EXISTS activity, rtis, tender_official_links, officials, contractors, tenders CASCADE;`);
+    logger.info("All tables dropped successfully.");
+    res.json({ success: true, message: "Tables dropped successfully. The database will now be recreated cleanly." });
+  } catch (err: any) {
+    logger.error({ err }, "Failed to drop tables");
+    res.status(500).json({ error: err.message });
   }
 });
 

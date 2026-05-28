@@ -110,7 +110,7 @@ export default function OfficialsWatch() {
           <div className="space-y-1">
             <h3 className="font-extrabold text-[#222222] text-[14px] uppercase tracking-wide">Approvals Fingerprint Watchlist</h3>
             <p className="text-[12.5px] text-[#6a6a6a] leading-relaxed">
-              Procurement collusion is relational. Individuals appearing frequently across high-confidence fraud cases receive a **Fingerprint Flag**. Below is the ranked list of signing authorities and technical committee members who approved the highest values in rigged contracts.
+              Procurement collusion is relational. Individuals appearing frequently across high-confidence fraud cases receive a <strong className="text-rose-600 font-bold">Fingerprint Flag</strong>. Below is the ranked list of signing authorities and technical committee members who approved the highest values in rigged contracts.
             </p>
           </div>
         </div>

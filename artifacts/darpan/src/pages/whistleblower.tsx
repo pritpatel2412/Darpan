@@ -347,7 +347,7 @@ export default function Whistleblower() {
                 <div className="space-y-2">
                   <h3 className="text-[18px] font-black text-[#222222] tracking-tight">Your Anonymous Vault Key</h3>
                   <p className="text-[13px] text-[#6a6a6a] max-w-md mx-auto leading-relaxed">
-                    This is your unique 8-word tracking passphrase. **Write it down immediately.** We store only cryptographically salted hashes, so we cannot recover this key if lost.
+                    This is your unique 8-word tracking passphrase. <strong className="font-extrabold text-[#ff385c]">Write it down immediately.</strong> We store only cryptographically salted hashes, so we cannot recover this key if lost.
                   </p>
                 </div>
 

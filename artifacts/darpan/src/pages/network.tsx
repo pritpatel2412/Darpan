@@ -254,7 +254,7 @@ export default function CorruptionNetwork() {
               <span className="text-[9px] font-black text-rose-500 bg-rose-950 border border-rose-800 px-2 py-0.5 rounded-full uppercase tracking-widest animate-pulse">Live HUD Active</span>
             </h3>
             <p className="text-[12.5px] text-[#a1a1aa] leading-relaxed">
-              Procurement collusion thrives in relationships. Below is the multi-layered structural representation mapping linkages between **Contractors (Orange Circles)**, **Approving Officials (Blue Squares)**, and **Procuring Ministries (Green Hexagons)**. Drag nodes to inspect corporate alignments, director overlaps, and approval velocities.
+              Procurement collusion thrives in relationships. Below is the multi-layered structural representation mapping linkages between <strong className="text-amber-500 font-bold">Contractors (Orange Circles)</strong>, <strong className="text-blue-500 font-bold">Approving Officials (Blue Squares)</strong>, and <strong className="text-emerald-600 font-bold">Procuring Ministries (Green Hexagons)</strong>. Drag nodes to inspect corporate alignments, director overlaps, and approval velocities.
             </p>
           </div>
         </div>

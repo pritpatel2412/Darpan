@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { tendersTable, rtisTable } from "@workspace/db";
 import { GetTenderParams, ListTendersQueryParams } from "@workspace/api-zod";
 import { eq, desc, gte, ilike, and, or, SQL } from "drizzle-orm";
+import { draftRtiQuestions } from "../lib/integrations/groq";
 
 const router = Router();
 
@@ -188,7 +189,26 @@ router.post("/tenders/:id/rti", async (req, res) => {
     }
 
     const signals = tender.fraudSignals as string[];
-    const questions = generateRtiQuestions(tender, signals);
+    let questions: string[] = [];
+    try {
+      questions = await draftRtiQuestions(
+        {
+          tenderId: tender.tenderId,
+          title: tender.title,
+          department: tender.department,
+          awardedValue: tender.awardedValue ? parseFloat(tender.awardedValue) : parseFloat(tender.contractValue),
+          awardedTo: tender.awardedTo || "UNDER EVALUATION",
+          bidWindowDays: tender.bidWindowDays || 14
+        },
+        signals
+      );
+    } catch (err) {
+      req.log.error({ err }, "Failed drafting live RTI questions, falling back");
+    }
+
+    if (!questions || questions.length === 0) {
+      questions = generateRtiQuestions(tender, signals);
+    }
     const filingDate = new Date();
     const responseDeadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const confirmationNumber = `RTI-${Date.now()}-${Math.floor(Math.random() * 9999).toString().padStart(4, "0")}`;

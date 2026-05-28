@@ -25,6 +25,13 @@ import { FraudTierBadge } from "@/components/ui/fraud-badge";
 
 const navSections = [
   {
+    label: "Phase 1 Submission",
+    items: [
+      { href: "/pitch-deck", label: "4-Slide Pitch Deck", icon: FileText },
+      { href: "/product-journey", label: "Product Journey", icon: TrendingUp },
+    ],
+  },
+  {
     label: "Intelligence",
     items: [
       { href: "/", label: "Dashboard", icon: LayoutDashboard },
