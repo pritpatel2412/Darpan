@@ -6,11 +6,11 @@
 
 ---
 
-## 👁️ Overview & The Problem
+## Overview & The Problem
 
 Public procurement accounts for a massive portion of public spending in India, yet it remains highly vulnerable to bid-rigging, price inflation, specification tailoring, and vendor cartels.
 
-*   ** reactive Auditing**: Traditional vigilance audits are slow and reactive, typically occurring years after funds are dispersed. Less than 1% of municipal and state-level tenders are ever audited.
+*   **Reactive Auditing**: Traditional vigilance audits are slow and reactive, typically occurring years after funds are dispersed. Less than 1% of municipal and state-level tenders are ever audited.
 *   **Systemic Corruption Cartels**: High-level cartels rotate wins, simulate competition with "cover bids," and tailor tender specifications to a specific vendor's proprietary catalog.
 *   **The Citizen Information Barrier**: The **Right to Information (RTI) Act** is a potent weapon against corruption, but drafting legally-sound, high-evidence RTI letters requires legal training and complex data-gathering far beyond the reach of average citizens.
 
@@ -18,9 +18,9 @@ Public procurement accounts for a massive portion of public spending in India, y
 
 ---
 
-## 🚀 Key Capabilities
+## Key Capabilities
 
-### 🔍 1. The 10-Signal Detection Engine
+### 1. The 10-Signal Detection Engine
 DARPAN evaluates every ingested tender across ten distinct forensic signals to calculate a unified risk score (0-100) and risk tier (`Critical`, `High`, `Medium`, `Low`):
 
 | Signal ID | Diagnostic Name | Forensic Method / Scoring Heuristic |
@@ -32,22 +32,22 @@ DARPAN evaluates every ingested tender across ten distinct forensic signals to c
 | **S05** | **Bid Window Manipulation** | Flags tenders with suspiciously short application windows (e.g., 24 to 72 hours) designed to keep competitor bidders in the dark. |
 | **S06** | **Shell Entity Detection** | Resolves registration dates via **MCA21** to flag newly-incorporated entities winning major projects within days of incorporation. |
 | **S07** | **Price Clustering (Cartels)** | Scans competitor bids to detect tight clustering (e.g., within 0.5% of each other), a classic sign of simulated cover bidding. |
-| **S08** | **Linked Entity networks** | Traces corporate connections, matching parent/subsidiary associations, shared DINs (directors), and registered addresses. |
+| **S08** | **Linked Entity Networks** | Traces corporate connections, matching parent/subsidiary associations, shared DINs (directors), and registered addresses. |
 | **S09** | **Cloned Spec Copying** | Compares current tender documents with past RFPs using text embedding models to detect recycled and tailored guidelines. |
 | **S10** | **Post-Award Amendments** | Monitors contract amendments immediately after signing to detect artificial price hikes or severe scope changes. |
 
-### 🛠️ 2. Citizen-Centric Legal Empowerment
+### 2. Citizen-Centric Legal Empowerment
 *   **AI-Powered RTI Drafter (NVIDIA NIMs & Groq)**: Automatically translates the structured evidence package of a corrupt tender into a formal, legally structured RTI letter matching the formatting requirements of the Central and State Public Information Officers (CPIOs).
 *   **Voice-Enabled Multilingual Drafting (Sarvam AI)**: Allows citizens to speak in Hindi (or English) to describe local infrastructure problems, which are translated and converted into professional, high-fidelity RTI filings.
 *   **Statutory Tracking & Appeals**: Monitored tracking board that enforces the statutory 30-day RTI response timeline, alerting citizens when to submit second-level appeals.
 
-### 📊 3. Interactive Vigilance Dashboards
+### 3. Interactive Vigilance Dashboards
 *   **Collusion Network Graph**: Uses dynamic relationship mapping to expose cartels, linking department officials, winning contractors, and cover-bid partners.
 *   **March Rush Analytics**: Highlights peak fiscal year-end budget-dumping anomalies, showcasing sudden spikes in tender publishing and awards before March 31st.
 
 ---
 
-## 🏗️ Technical Architecture & Stack
+## Technical Architecture & Stack
 
 DARPAN is built with a decoupled, high-performance architecture:
 
@@ -83,7 +83,7 @@ graph TD
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```
 Darpan/
@@ -114,7 +114,7 @@ Darpan/
 
 ---
 
-## 🛠️ Getting Started & Local Installation
+## Getting Started & Local Installation
 
 ### Prerequisites
 Make sure you have the following installed on your machine:
@@ -207,7 +207,7 @@ docker run --name darpan-redis -p 6379:6379 -d redis:7
 
 ---
 
-## 🗃️ Forensic Auditing Scenarios (Seed Data)
+## Forensic Auditing Scenarios (Seed Data)
 Once seeded, the platform will load three major public interest cases to demo the full pipeline:
 
 1.  **Case A (Delhi Jal Board - STP Augmentation - ₹1,943 Crore)**:
@@ -222,5 +222,17 @@ Once seeded, the platform will load three major public interest cases to demo th
 
 ---
 
-## 📄 License
+## Future Implementation
+
+To expand Darpan's footprint and forensic depth, the following capabilities are planned for integration:
+
+*   **Graph Neural Networks (GNNs) for Collusion Prediction**: Train deep Graph Neural Networks (using PyTorch Geometric) on historical bid rotation datasets to predict potential bidding cartels before contract execution.
+*   **Fully-Automated Headless RTI Submission**: Develop direct headless browser integrations to auto-solve CAPTCHAs and directly submit compiled RTI files to `rtionline.gov.in` and state government portals without human friction.
+*   **Systematic All-State Scraper Coverage**: Standardize data scrapers using AI-based PDF parsers to ingest and parse procurement sheets across all 28 states and 8 union territories.
+*   **Regional Dialect Support**: Extend Sarvam AI voice translation features to accept regional dialects including Marathi, Telugu, Tamil, and Bengali to empower grassroots activists.
+*   **Direct Vigilance API Gateways**: Design secure API gateways to instantly pipe high-confidence critical fraud score alerts directly into Comptroller and Auditor General (CAG) and Central Vigilance Commission (CVC) oversight pipelines.
+
+---
+
+## License
 This project is open-sourced under the [MIT License](LICENSE).
